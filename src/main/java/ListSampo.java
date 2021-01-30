@@ -32,7 +32,7 @@ public class ListSampo {
     }
 
     public boolean addDancerToList(Dancer dancer) {
-        boolean alreadySigned=false;
+        boolean alreadySigned = false;
         for (int i = 0; i < mainListSampo.size(); i++) {
             if (mainListSampo.get(i).contains(dancer)) {
                 alreadySigned = true;
@@ -52,8 +52,8 @@ public class ListSampo {
                 return true;
             }
         }
-            return false;//если уже был записан ранее
-        }
+        return false;//если уже был записан ранее
+    }
 
 
     public void removePairFromList(Dancer dancer) {
@@ -74,6 +74,9 @@ public class ListSampo {
                 } else {
                     pair.set(1, emptyFollower);
                 }
+            }
+            if (pair.contains(emptyLeader) && pair.contains(emptyFollower)) {
+                mainListSampo.remove(i);
             }
         }
     }
