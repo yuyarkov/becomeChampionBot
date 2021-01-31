@@ -1,14 +1,12 @@
-import jdk.jfr.DataAmount;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
+import pojo.Dancer;
 
 public class ListSampo {
     private ArrayList<ArrayList<Dancer>> mainListSampo;
     private LocalDate sampoDate;
-    private Dancer emptyFollower = new Dancer("", "в поиске", Dancer.FOLLOWER, becomeChampionBot.CHAT_ID_DETOCHKIN);
-    private Dancer emptyLeader = new Dancer("", "в поиске", Dancer.LEADER, becomeChampionBot.CHAT_ID_DETOCHKIN);
+    private Dancer emptyFollower = new Dancer("", "в поиске", Dancer.FOLLOWER, becomeChampionBot.CHAT_ID_DETOCHKIN,"emptyFollower");
+    private Dancer emptyLeader = new Dancer("", "в поиске", Dancer.LEADER, becomeChampionBot.CHAT_ID_DETOCHKIN,"emptyLeader");
 
     public ListSampo(LocalDate sampoDate) {//конструктор с одной датой на входе
         this.sampoDate = sampoDate;
@@ -57,7 +55,7 @@ public class ListSampo {
 
 
     public void removePairFromList(Dancer dancer) {
-        for (var i = 0; i < mainListSampo.size(); i++) {
+        for (int i = 0; i < mainListSampo.size(); i++) {
             var pair = mainListSampo.get(i);
             if (pair.contains(dancer)) {
                 mainListSampo.remove(pair);

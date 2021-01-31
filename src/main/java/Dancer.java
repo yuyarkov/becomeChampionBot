@@ -1,26 +1,48 @@
+package pojo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Dancer {
-    private String idDancerFromChatID;
-    private String idASH;//на будущее, код танцора в базе АСХ
-    private String sex;
-    public static final String LEADER="Партнер";
-    public static final String FOLLOWER="Партнерша";
+    public static final String LEADER = "Партнер";
+    public static final String FOLLOWER = "Партнерша";
+
+    @JsonProperty("chatID")
+    private String chatID;
+
+    @JsonProperty("First Name")
     private String firstName;
+
+    @JsonProperty("Last Name")
     private String lastName;
+
+    @JsonProperty("Telegram NickName")
     private String telegramName;
 
-public Dancer(String firstName,String lastName, String sex, String chatID) {
-    this.firstName=firstName;
-    this.lastName=lastName;
-    this.sex=sex;
-    this.idDancerFromChatID=chatID;
-}
+    @JsonProperty("Sex")
+    private String sex;
 
-    public String getIdDancerFromChatID() {
-        return idDancerFromChatID;
+    @JsonIgnore
+    private String idASH;//на будущее, код танцора в базе АСХ
+
+
+    public Dancer() {
     }
 
-    public void setIdDancerFromChatID(String idDancerFromChatID) {
-        this.idDancerFromChatID = idDancerFromChatID;
+
+    public Dancer(String firstName, String lastName, String sex, String chatID, String telegramName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.sex = sex;
+        this.chatID = chatID;
+        this.telegramName=telegramName;
+    }
+
+    public String getChatID() {
+        return chatID;
+    }
+
+    public void setChatID(String chatID) {
+        this.chatID = chatID;
     }
 
     public String getSex() {
@@ -56,7 +78,10 @@ public Dancer(String firstName,String lastName, String sex, String chatID) {
     }
 
 
-
-
-
+    @Override
+    public String toString() {
+        return "Dancer [id:" + chatID + ", Имя " + firstName + ", Фамилия: " + lastName + ", Ник в телеграме: " + telegramName + ", Пол: " + sex + "]";
+    }
 }
+
+
