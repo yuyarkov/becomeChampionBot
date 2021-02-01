@@ -1,13 +1,18 @@
 package pojo;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.HashSet;
 
 public class Dancer {
     public static final String LEADER = "Партнер";
     public static final String FOLLOWER = "Партнерша";
 
+
+
     @JsonProperty("chatID")
-    private String chatID;
+    private long chatID;
 
     @JsonProperty("First Name")
     private String firstName;
@@ -29,19 +34,19 @@ public class Dancer {
     }
 
 
-    public Dancer(String firstName, String lastName, String sex, String chatID, String telegramName) {
+    public Dancer(String firstName, String lastName, String sex, long chatID, String telegramName) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.sex = sex;
         this.chatID = chatID;
-        this.telegramName=telegramName;
+        this.telegramName = telegramName;
     }
 
-    public String getChatID() {
+    public long getChatID() {
         return chatID;
     }
 
-    public void setChatID(String chatID) {
+    public void setChatID(long chatID) {
         this.chatID = chatID;
     }
 
@@ -82,6 +87,8 @@ public class Dancer {
     public String toString() {
         return "Dancer [id:" + chatID + ", Имя " + firstName + ", Фамилия: " + lastName + ", Ник в телеграме: " + telegramName + ", Пол: " + sex + "]";
     }
+
+
 }
 
 

@@ -88,7 +88,7 @@ public class ListSampo {
     public String printToString() {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < mainListSampo.size(); i++) {
-            result.append((i + 1) + " " + mainListSampo.get(i).get(0).getLastName() + " - " + mainListSampo.get(i).get(1).getLastName() + "\n");
+            result.append((i + 1) + ". " + mainListSampo.get(i).get(0).getLastName() + " — " + mainListSampo.get(i).get(1).getLastName() + "\n");
         }
         return result.toString();
     }
