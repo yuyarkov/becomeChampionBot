@@ -1,16 +1,27 @@
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+
 import pojo.Dancer;
 
 public class ListSampo {
     private ArrayList<ArrayList<Dancer>> mainListSampo;
+
+
     private LocalDate sampoDate;
-    private Dancer emptyFollower = new Dancer("", "в поиске", Dancer.FOLLOWER, becomeChampionBot.CHAT_ID_DETOCHKIN,"emptyFollower");
-    private Dancer emptyLeader = new Dancer("", "в поиске", Dancer.LEADER, becomeChampionBot.CHAT_ID_DETOCHKIN,"emptyLeader");
+    public String filePathListSampo;
+    private Dancer emptyFollower = new Dancer("", "в поиске", Dancer.FOLLOWER, 0, "emptyFollower");
+    private Dancer emptyLeader = new Dancer("", "в поиске", Dancer.LEADER, becomeChampionBot.CHAT_ID_DETOCHKIN, "emptyLeader");
 
     public ListSampo(LocalDate sampoDate) {//конструктор с одной датой на входе
         this.sampoDate = sampoDate;
-        mainListSampo = new ArrayList<>();
+        mainListSampo = new ArrayList<ArrayList<Dancer>>();
+        filePathListSampo = "mainList" + sampoDate.toString();
+    }
+
+    public String getFilePathListSampo() {
+        return filePathListSampo;
     }
 
     public ArrayList<ArrayList<Dancer>> getMainListSampo() {
@@ -26,7 +37,11 @@ public class ListSampo {
         pair.add(dancer1);
         pair.add(dancer2);
         mainListSampo.add(pair);
-
+        try {
+            util.Converter.saveListSampoToFile(mainListSampo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean addDancerToList(Dancer dancer) {
@@ -42,26 +57,36 @@ public class ListSampo {
                 pair.add(emptyLeader);
                 pair.add(dancer);
                 mainListSampo.add(pair);
-                return true;
             } else {
                 pair.add(dancer);
                 pair.add(emptyFollower);
                 mainListSampo.add(pair);
-                return true;
             }
+            try {
+                util.Converter.saveListSampoToFile(mainListSampo);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return true;
         }
         return false;//если уже был записан ранее
     }
 
 
-    public void removePairFromList(Dancer dancer) {
+    public void removePairFromList(Dancer firstDancerToRemove, Dancer secondDancerToRemove) {
         for (int i = 0; i < mainListSampo.size(); i++) {
             var pair = mainListSampo.get(i);
-            if (pair.contains(dancer)) {
+  if (pair.contains(firstDancerToRemove)){
                 mainListSampo.remove(pair);
+            }
+            try {
+                util.Converter.saveListSampoToFile(mainListSampo);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
+
 
     public void removeDancerFromList(Dancer dancer) {
         for (var i = 0; i < mainListSampo.size(); i++) {
@@ -73,10 +98,30 @@ public class ListSampo {
                     pair.set(1, emptyFollower);
                 }
             }
-            if (pair.contains(emptyLeader) && pair.contains(emptyFollower)) {
+            if (pair.contains(emptyLeader) & pair.contains(emptyFollower)) {
                 mainListSampo.remove(i);
+                i--;//уменьшаю счётчик, чтобы не забыть пройти лист до конца
             }
         }
+        try {
+            util.Converter.saveListSampoToFile(mainListSampo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public Dancer findPairByDancer(Dancer firstDancer) {
+
+        for (ArrayList<Dancer> pair : mainListSampo) {
+            if (pair.get(0).equals(firstDancer)) {
+                return pair.get(1);
+            }
+            if (pair.get(1).equals(firstDancer)){
+                return pair.get(0);
+            }
+        }
+        return DancerBase.emptyDancer;
     }
 
     public void printListSampo() {

@@ -84,6 +84,15 @@ public class Dancer {
 
 
     @Override
+    public boolean equals(Object obj){
+        if(obj == this)return true;
+        Dancer dancer = (Dancer) obj; //я сделаю без сравнения типов
+        return (dancer.chatID == this.chatID && dancer.getLastName().equals(this.lastName));
+    }
+
+
+
+    @Override
     public String toString() {
         return "Dancer [id:" + chatID + ", Имя " + firstName + ", Фамилия: " + lastName + ", Ник в телеграме: " + telegramName + ", Пол: " + sex + "]";
     }

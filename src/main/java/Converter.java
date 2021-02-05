@@ -15,6 +15,15 @@ import java.util.HashSet;
 public class Converter {
 
     private final static String baseFile = "dancerBase.json";
+    private static String filePathListSampo="listSampo.json";
+    private static String filePathWaitingList="waitingList.json";
+
+    public static void setFilePathListSampo(String path){
+        filePathListSampo=path;
+    }
+    public static void setFilePathWaitingList(String path){
+        filePathListSampo=path;
+    }
 
 
     public static void saveDancerBaseToFile(HashSet<Dancer> dancerBase) throws IOException {
@@ -26,7 +35,7 @@ public class Converter {
                 try {
                     sender.println(mapper.writeValueAsString(dancer));
                 } catch (Exception e) {
-                    System.out.println(e);
+                    e.printStackTrace();
                 }
         }
     }
@@ -60,7 +69,34 @@ public class Converter {
             e.printStackTrace();
         }
         return result;
+    }
 
+    public static void saveListSampoToFile(ArrayList<ArrayList<Dancer>> listSampo) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try (OutputStream output = Files.newOutputStream(Path.of(filePathListSampo));
+             PrintStream sender = new PrintStream(output)) {
+            for (var pair : listSampo)
+                try {
+                    sender.println(mapper.writeValueAsString(pair));
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+        }
+    }
+
+    public static void saveWaitingListToFile(ArrayList<ArrayList<Dancer>> listSampo) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try (OutputStream output = Files.newOutputStream(Path.of(filePathWaitingList));
+             PrintStream sender = new PrintStream(output)) {
+            for (var pair : listSampo)
+                try {
+                    sender.println(mapper.writeValueAsString(pair));
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+        }
     }
 
 }
