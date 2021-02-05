@@ -10,14 +10,17 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+import java.io.File;
 import java.io.IOException;
 
+import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.Month;
 
 
 import util.Converter;
 import pojo.Dancer;
+
 import static java.lang.Math.toIntExact;
 
 public class becomeChampionBot extends TelegramLongPollingBot {
@@ -188,7 +191,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
 
         nextSampoList.removeDancerFromList(dancertoRemove);
         updatedListSampo = nextSampoList.printToString();
-      sendMessageAfterCancelAlone(chatID);
+        sendMessageAfterCancelAlone(chatID);
     }
 
     public void cancelPair(Message message) {
@@ -207,8 +210,8 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         updatedListSampo = nextSampoList.printToString();
         replyToTelegram(chatID, "Удалил из списка вашу пару: " + firstDancerToRemove.getLastName() + " - " + secondDancerToRemove.getLastName());
         sendMessageAfterCancelPair(chatID);
-        replyToTelegram(CHAT_ID_DETOCHKIN,firstDancerToRemove.getLastName()+" попросил удалить их пару с "+
-                secondDancerToRemove.getLastName()+ " Удалил");
+        replyToTelegram(CHAT_ID_DETOCHKIN, firstDancerToRemove.getLastName() + " попросил удалить их пару с " +
+                secondDancerToRemove.getLastName() + " Удалил");
         if (firstDancerToRemove.getSex().equals(Dancer.LEADER)) {
             replyToTelegram(secondDancerToRemove.getChatID(), firstDancerToRemove.getFirstName() +
                     " " + firstDancerToRemove.getLastName() + " попросил отменить вашу запись на сампо. Удалил вас из списка!");
@@ -274,7 +277,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendMessageAfterCancelPair (long chatID) {
+    public void sendMessageAfterCancelPair(long chatID) {
         SendMessage messageAfterInit = new SendMessage();
         messageAfterInit.setChatId(String.valueOf(chatID));
         messageAfterInit.setText("Удалил вашу пару из списка");
@@ -394,13 +397,29 @@ public class becomeChampionBot extends TelegramLongPollingBot {
     }
 
 
-    public static void main(String[] args) {
+    private static void setupLog4J() {
+        try {
+            System.setProperty("log4j.configuration", new File(".", File.separatorChar + "log4j.properties").toURL().toString());
+        } catch (MalformedURLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        try {
+            System.setProperty("log4j.debug", new File(".", File.separatorChar + "log4j.debug").toURL().toString());
+        } catch (MalformedURLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
+    public static void main(String[] args) {
+        setupLog4J();
         try {
             DancerBase.dancerBase = util.Converter.readDancerBaseFromFile();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         nextSampoList = new ListSampo(LocalDate.of(2021, Month.FEBRUARY, 1));
         nextSampoWaitingList = new WaitingListSampo(LocalDate.of(2021, Month.FEBRUARY, 1));

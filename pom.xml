@@ -5,6 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>telegram-bots-Detochkin</groupId>
     <artifactId>becomeChampionBot</artifactId>
+    <packaging>pom</packaging>
     <version>1.0</version>
     <dependencies>
 <!--        <dependency>
@@ -38,37 +39,37 @@
                 </exclusion>
             </exclusions>
         </dependency>-->
-        <dependency>
+<!--        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>2.11.2</version>
+            <version>2.11.0</version>
         </dependency>
-        <!-- SLF4J Bridge -->
+        &lt;!&ndash; SLF4J Bridge &ndash;&gt;
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.11.2</version>
-        </dependency>
+            <version>2.11.0</version>
+        </dependency>-->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-meta</artifactId>
             <version>5.0.1</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.30</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
             <version>5.0.1</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -85,6 +86,14 @@
             <version>2.11.0</version>
         </dependency>
     </dependencies>
+<!--    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+        <configuration>
+            <release>11</release>  &lt;!&ndash;or <release>10</release>&ndash;&gt;
+        </configuration>
+    </plugin>-->
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
