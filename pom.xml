@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>telegram-bots-Detochkin</groupId>
     <artifactId>becomeChampionBot</artifactId>
-    <packaging>war</packaging>
+    <packaging>pom</packaging>
     <version>1.0</version>
     <dependencies>
 <!--        <dependency>
