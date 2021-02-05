@@ -8,19 +8,14 @@
     <version>1.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
-            <groupId>org.telegram</groupId>
-            <artifactId>telegrambots</artifactId>
-            <version>5.0.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commonslang.version}</version>
+            <version>commonslang.version</version>
         </dependency>
         <dependency>
             <groupId>org.mapdb</groupId>
             <artifactId>mapdb</artifactId>
-            <version>${mapdb.version}</version>
+            <version>mapdb.version</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
@@ -56,18 +51,8 @@
         </dependency>
         <dependency>
             <groupId>org.telegram</groupId>
-            <artifactId>telegrambots</artifactId>
-            <version>5.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.telegram</groupId>
             <artifactId>telegrambots-meta</artifactId>
             <version>5.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>becomeChampionBot</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
