@@ -1,1 +1,1 @@
-worker: sh target/bin/becomeChampionBot
+worker: sh target/bin/becomeChampionBot.class
