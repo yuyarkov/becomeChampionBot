@@ -96,8 +96,8 @@
                     <assembleDirectory>target</assembleDirectory>
                     <programs>
                         <program>
-                            <mainClass>bot.BotApplication</mainClass>
-                            <name>workerBot</name>
+                            <mainClass>becomeChampionBot</mainClass>
+                            <name>becomeChampionBot</name>
                         </program>
                     </programs>
                 </configuration>
