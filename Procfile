@@ -1,1 +1,1 @@
-web: java -jar target/become-champion-tg-bot-1.0.jar
+worker: sh target/bin/becomeChampionBot
