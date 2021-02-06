@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>telegram-bots-Detochkin</groupId>
     <artifactId>becomeChampionBot</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <version>1.0</version>
     <dependencies>
 <!--        <dependency>
