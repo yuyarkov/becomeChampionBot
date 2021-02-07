@@ -29,6 +29,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
 
     public static long chatWaiting = 0; //статус чата, в котором бот запросил инфу от юзера и ждёт ответа
     public static boolean waitingForLastName;//статус, где юзеру нужно ввести свою фамилию
+    public static boolean waitingForPartnerName;//статус, где записывается парой и указывае фамилию партнера/партнерши
 
     public static String dialogDancerSex = null; //юзер при начале общения с ботом указывает свой пол
     public static String updatedListSampo;
@@ -96,7 +97,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
     public void reactToRequest(Message message) {
         long chatID = message.getChatId();
         String currentDancerSex = DancerBase.getDancerByChatID(chatID).getSex();
-        if (message.hasText() && chatWaiting != 0 && chatID == chatWaiting && !waitingForLastName) {
+        if (message.hasText() && chatWaiting != 0 && chatID == chatWaiting && waitingForPartnerName) {
             parseDancerFromRequest(message);
         }
 
@@ -136,6 +137,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         Dancer firstDancer = DancerBase.getDancerByChatID(chatID);
         replyToTelegram(chatID, "Давай запишу. Скажи, с кем, напиши пожалуйста фамилию:");
         chatWaiting = chatID;
+        waitingForPartnerName=true;
     }
 
     public void signUpWithPartner(long chatID, Dancer dancer1, Dancer dancer2) {
@@ -156,6 +158,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         if (!foundDancer.equals(DancerBase.emptyDancer)) {
             signUpWithPartner(chatID, firstDancer, foundDancer);
             chatWaiting = 0;
+            waitingForPartnerName=false;
         } else {
             replyToTelegram(chatID, messageLastName + " — не нашёл такой фамилии в базе танцоров. Напиши фамилию без кавычек");
         }
