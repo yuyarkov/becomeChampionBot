@@ -68,6 +68,8 @@ public class becomeChampionBot extends TelegramLongPollingBot {
             case "lastnameok":
                 DancerBase.createDancer(callbackQuery);
                 sendMessageAfterInit(chatID);
+                waitingForLastName=false;
+                chatWaiting=0;
                 break;
             case "readmylastname":
                 replyToTelegram(chatID, "Понял. Напиши свою фамилию без кавычек:");
