@@ -50,26 +50,27 @@ public class DancerBase {
         for (var dancer : dancerBase) {
             if (dancer.getLastName().equalsIgnoreCase(lastName)) {
                 dancerFound = dancer;
-                System.out.println("Нашёл совпадение по фамилии: " + dancer.getFirstName() + " " + dancer.getLastName());
             }
         }
         return dancerFound;
     }
 
-    public static boolean isDancerWithThisLastName(String lastName) {
+    public static boolean hasDancerWithThisLastName(String lastName) {
         for (var dancer : dancerBase) {
             if (dancer.getLastName().equalsIgnoreCase(lastName)) {
                 return true;
             }
-        } return false;
+        }
+        return false;
     }
 
     public static boolean isDancerWithThisChatID(long chatID) {
         for (var dancer : dancerBase) {
-            if (dancer.getChatID()==chatID) {
+            if (dancer.getChatID() == chatID) {
                 return true;
             }
-        } return false;
+        }
+        return false;
     }
 
     public static void createDancer(CallbackQuery callbackQuery) {
@@ -77,8 +78,20 @@ public class DancerBase {
         String lastName = callbackQuery.getFrom().getLastName();
         long chatID = callbackQuery.getMessage().getChatId();
         String telegramName = callbackQuery.getFrom().getUserName();
-        pojo.Dancer newDancer = new pojo.Dancer(firstName, lastName, becomeChampionBot.dialogDancerSex, chatID, telegramName);
-        dancerBase.add(newDancer);
+        if (isDancerWithThisChatID(chatID)) {
+            pojo.Dancer findDancer = getDancerByChatID(chatID);
+            findDancer.setFirstName(firstName);
+            findDancer.setLastName(lastName);
+            findDancer.setTelegramName(telegramName);
+        } else if (hasDancerWithThisLastName(lastName)) {
+            pojo.Dancer findDancer = findDancerByLastName(lastName);
+            findDancer.setChatID(chatID);
+            findDancer.setFirstName(firstName);
+            findDancer.setTelegramName(telegramName);
+        } else {
+            pojo.Dancer newDancer = new pojo.Dancer(firstName, lastName, becomeChampionBot.dialogDancerSex, chatID, telegramName);
+            dancerBase.add(newDancer);
+        }
         try {
             util.Converter.saveDancerBaseToFile(dancerBase);
         } catch (IOException e) {

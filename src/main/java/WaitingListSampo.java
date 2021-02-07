@@ -1,3 +1,5 @@
+import pojo.Dancer;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,8 +17,9 @@ public class WaitingListSampo {
     public WaitingListSampo(LocalDate sampoDate) {//конструктор с одной датой на входе
         this.sampoDate = sampoDate;
         waitingList = new ArrayList<ArrayList<pojo.Dancer>>();
-        filePathWaitingList="waitingList"+sampoDate.toString();
+        filePathWaitingList = "waitingList" + sampoDate.toString();
     }
+
 
     public boolean addToWaitingList(pojo.Dancer dancer) {
         boolean alreadySigned = false;
@@ -39,6 +42,26 @@ public class WaitingListSampo {
         }
         return false;//если уже была записан ранее
     }
+
+    public void removeFromWaitingList(Dancer dancer){
+        for (var pair:waitingList){
+            if (pair.contains(dancer)) {waitingList.remove(pair);}
+        }
+    }
+
+    public boolean hasDancersInWaitingList() {
+        if (waitingList.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public Dancer removeFirstFromWaitingList() {
+        pojo.Dancer followerToRemove = waitingList.get(0).get(1);
+        waitingList.remove(0);
+        return followerToRemove;
+    }
+
 
     public void printWaitingList() {
         for (int i = 0; i < waitingList.size(); i++) {

@@ -32,10 +32,31 @@ public class ListSampo {
         return sampoDate;
     }
 
+    public boolean hasEmptySlotForFollower() {
+        boolean result=false;
+        for (var pair:mainListSampo) {
+            if (pair.contains(emptyFollower)) {result=true;}
+        }
+        return result;
+    }
+
+    public boolean hasEmptySlotForLeader() {
+        boolean result=false;
+        for (var pair:mainListSampo) {
+            if (pair.contains(emptyLeader)) {result=true;}
+        }
+        return result;
+    }
+
     public void addPairToList(Dancer dancer1, Dancer dancer2) {
         ArrayList<Dancer> pair = new ArrayList<>();
-        pair.add(dancer1);
-        pair.add(dancer2);
+        if (dancer1.getSex().equals(Dancer.LEADER)) {
+            pair.add(dancer1);
+            pair.add(dancer2);
+        } else {
+            pair.add(dancer2);
+            pair.add(dancer1);
+        }
         mainListSampo.add(pair);
         try {
             util.Converter.saveListSampoToFile(mainListSampo);
@@ -45,22 +66,25 @@ public class ListSampo {
     }
 
     public boolean addDancerToList(Dancer dancer) {
-        boolean alreadySigned = false;
-        for (int i = 0; i < mainListSampo.size(); i++) {
-            if (mainListSampo.get(i).contains(dancer)) {
-                alreadySigned = true;
-            }
-        }
-        if (!alreadySigned) {
+        if (!isAlreadySigned(dancer)) {
             ArrayList<Dancer> pair = new ArrayList<>();
             if (dancer.getSex().equals(Dancer.FOLLOWER)) {
+                if (hasEmptySlotForFollower()) {
+                    addFollowerToEmptySlot(dancer);
+                }
+                else {
                 pair.add(emptyLeader);
                 pair.add(dancer);
-                mainListSampo.add(pair);
-            } else {
-                pair.add(dancer);
-                pair.add(emptyFollower);
-                mainListSampo.add(pair);
+                mainListSampo.add(pair);}
+            }
+            if (dancer.getSex().equals(Dancer.LEADER)){
+                if (hasEmptySlotForLeader()) {
+                    addLeaderToEmptySlot(dancer);
+                } else {
+                    pair.add(dancer);
+                    pair.add(emptyFollower);
+                    mainListSampo.add(pair);
+                }
             }
             try {
                 util.Converter.saveListSampoToFile(mainListSampo);
@@ -72,11 +96,27 @@ public class ListSampo {
         return false;//если уже был записан ранее
     }
 
+    public void addLeaderToEmptySlot(Dancer dancer) {
+        for (var pair:mainListSampo) {
+            if (pair.contains(emptyLeader)) {
+                pair.set(0,dancer);
+            }
+        }
+    }
+
+    public void addFollowerToEmptySlot(Dancer dancer) {
+        for (var pair:mainListSampo) {
+            if (pair.contains(emptyFollower)) {
+                pair.set(1,dancer);
+            }
+        }
+    }
+
 
     public void removePairFromList(Dancer firstDancerToRemove, Dancer secondDancerToRemove) {
         for (int i = 0; i < mainListSampo.size(); i++) {
             var pair = mainListSampo.get(i);
-  if (pair.contains(firstDancerToRemove)){
+            if (pair.contains(firstDancerToRemove)) {
                 mainListSampo.remove(pair);
             }
             try {
@@ -117,12 +157,23 @@ public class ListSampo {
             if (pair.get(0).equals(firstDancer)) {
                 return pair.get(1);
             }
-            if (pair.get(1).equals(firstDancer)){
+            if (pair.get(1).equals(firstDancer)) {
                 return pair.get(0);
             }
         }
         return DancerBase.emptyDancer;
     }
+
+    public boolean isAlreadySigned(pojo.Dancer dancer) {
+        boolean result = false;
+        for (ArrayList<Dancer> pair : mainListSampo) {
+            if (pair.contains(dancer)) {
+                result = true;
+            }
+        }
+        return result;
+    }
+
 
     public void printListSampo() {
         for (int i = 0; i < mainListSampo.size(); i++) {

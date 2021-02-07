@@ -160,7 +160,6 @@ public class becomeChampionBot extends TelegramLongPollingBot {
 
     }
 
-
     public void signUpLonelyGirl(Message message) {
         long chatID = message.getChatId();
         Dancer dancertoAdd = DancerBase.getDancerByChatID(chatID);
@@ -174,11 +173,19 @@ public class becomeChampionBot extends TelegramLongPollingBot {
     public void signUpAlone(Message message) {
         long chatID = message.getChatId();
         Dancer dancertoAdd = DancerBase.getDancerByChatID(chatID);
+        if (dancertoAdd.getSex().equals(Dancer.LEADER)&&nextSampoWaitingList.hasDancersInWaitingList()) {
+            Dancer dancer2=nextSampoWaitingList.removeFirstFromWaitingList();
+            nextSampoList.addPairToList(dancertoAdd,dancer2);
+            replyToTelegram(dancer2.getChatID(),"Перенёс тебя из листа ожидания в основной список," +
+                    "в пару к танцору: "+dancertoAdd.getFirstName()+" "+dancertoAdd.getLastName());
+            replyToTelegram(chatID,"Записал тебя вместе с партнёршей из листа ожидания: "+
+                    dancer2.getFirstName()+" "+dancer2.getLastName());
+            return;
+        }
+
         boolean success = nextSampoList.addDancerToList(dancertoAdd);
         if (success) {
             updatedListSampo = nextSampoList.printToString();
-            replyToTelegram(message.getChatId(), "Записал тебя!");
-            sendListSampo(chatID);
         } else {
             replyToTelegram(message.getChatId(), "Ты уже в списке");
         }
@@ -190,6 +197,12 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         Dancer dancertoRemove = DancerBase.getDancerByChatID(chatID);
 
         nextSampoList.removeDancerFromList(dancertoRemove);
+        if (dancertoRemove.getSex().equals(Dancer.FOLLOWER) && nextSampoWaitingList.hasDancersInWaitingList()) {
+            Dancer dancerToAdd = nextSampoWaitingList.removeFirstFromWaitingList();
+            nextSampoList.addFollowerToEmptySlot(dancerToAdd);
+            replyToTelegram(dancerToAdd.getChatID(),"Перенёс тебя из списка ожидания в основной список, " +
+                    "в пару к танцору: "+ nextSampoList.findPairByDancer(dancerToAdd));
+        }
         updatedListSampo = nextSampoList.printToString();
         sendMessageAfterCancelAlone(chatID);
     }
@@ -219,15 +232,12 @@ public class becomeChampionBot extends TelegramLongPollingBot {
             replyToTelegram(secondDancerToRemove.getChatID(), firstDancerToRemove.getFirstName() +
                     " " + firstDancerToRemove.getLastName() + " попросила отменить вашу запись на сампо. Удалил вас из списка!");
         }
-
-
     }
-
 
     public void sendMessageAfterSignUp(long chatID) {
         SendMessage messageAfterAfterSignUp = new SendMessage();
         messageAfterAfterSignUp.setChatId(String.valueOf(chatID));
-        messageAfterAfterSignUp.setText("Записал вас обоих. До встречи на сампо!");
+        messageAfterAfterSignUp.setText("До встречи на сампо! Захвати с собой водички");
 
         Buttons.setButtonsAfterSignUP(messageAfterAfterSignUp);
         try {
@@ -256,7 +266,8 @@ public class becomeChampionBot extends TelegramLongPollingBot {
     public void sendMessageAfterInit(long chatID) {
         SendMessage messageAfterInit = new SendMessage();
         messageAfterInit.setChatId(String.valueOf(chatID));
-        messageAfterInit.setText("Готово. Занёс тебя в базу. Записывайся на следующее сампо");
+        messageAfterInit.setText("Готово. Обновил информацию о тебе в нашей маленькой базе будущих чемпионов.\n" +
+                "Записывайся на следующее сампо (снизу должны быть три крупные кнопки. Если их нет, нажми кнопку рядом с микрофончиком.");
         Buttons.setButtonsBeforeSignUP(messageAfterInit);
         try {
             execute(messageAfterInit);
@@ -322,7 +333,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
     public void readDancerLastName(Message message) {
         long chatID = message.getChatId();
         String lastName = message.getText();
-        Dancer dancer = DancerBase.emptyDancer;
+        Dancer dancer;
         String firstName = message.getFrom().getFirstName();
         String telegramName = message.getFrom().getUserName();
         if (DancerBase.isDancerWithThisChatID(chatID)) {
@@ -332,7 +343,13 @@ public class becomeChampionBot extends TelegramLongPollingBot {
             dancer.setSex(dialogDancerSex);
             dancer.setTelegramName(telegramName);
         } else {
-            DancerBase.dancerBase.add(new Dancer(firstName, lastName, dialogDancerSex, chatID, telegramName));
+            if (DancerBase.hasDancerWithThisLastName(lastName)) {
+                dancer = DancerBase.findDancerByLastName(lastName);
+                dancer.setChatID(chatID);
+                dancer.setTelegramName(telegramName);
+            } else {
+                DancerBase.dancerBase.add(new Dancer(firstName, lastName, dialogDancerSex, chatID, telegramName));
+            }
         }
         try {
             Converter.saveDancerBaseToFile(DancerBase.dancerBase);
@@ -362,7 +379,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         SendMessage messageWithList = new SendMessage(); // Create a SendMessage object with mandatory fields
         messageWithList.setChatId(String.valueOf(chatID));
         messageWithList.enableMarkdown(true);
-        messageWithList.setText("*Текущий список на сампо:*\n(пока тестовый режим, список не сохраняется)\n"
+        messageWithList.setText("*Текущий список на сампо 15 февраля:*\n(пока тестовый режим, список не сохраняется)\n"
                 + nextSampoList.printToString()
                 + "\n*Лист ожидания:*\n"
                 + nextSampoWaitingList.printToString());
@@ -423,18 +440,6 @@ public class becomeChampionBot extends TelegramLongPollingBot {
 
         nextSampoList = new ListSampo(LocalDate.of(2021, Month.FEBRUARY, 1));
         nextSampoWaitingList = new WaitingListSampo(LocalDate.of(2021, Month.FEBRUARY, 1));
-
-
-        nextSampoList.addPairToList(dan1, dan3);
-        nextSampoList.addPairToList(dan2, dan4);
-        nextSampoList.addDancerToList(dan5);
-
-        nextSampoList.printListSampo();
-
-
-//        nextSampoWaitingList.addToWaitingList(dan6);
-
-        nextSampoWaitingList.printWaitingList();
 
 
         try {
