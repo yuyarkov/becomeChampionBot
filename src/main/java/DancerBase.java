@@ -89,7 +89,7 @@ public class DancerBase {
             findDancer.setFirstName(firstName);
             findDancer.setTelegramName(telegramName);
         } else {
-            pojo.Dancer newDancer = new pojo.Dancer(firstName, lastName, becomeChampionBot.dialogDancerSex, chatID, telegramName);
+            pojo.Dancer newDancer = new pojo.Dancer(firstName, lastName, becomeChampionBot.dialogDancerSex.get(chatID), chatID, telegramName);
             dancerBase.add(newDancer);
         }
         try {
@@ -97,7 +97,6 @@ public class DancerBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        becomeChampionBot.dialogDancerSex = null;
     }
 
 

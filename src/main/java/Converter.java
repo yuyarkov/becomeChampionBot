@@ -85,6 +85,21 @@ public class Converter {
         }
     }
 
+/*
+    public static ArrayList<ArrayList<Dancer>> readListSampoFromFile() throws IOException {
+        ArrayList<ArrayList<Dancer>> listSampo = new ArrayList<ArrayList<Dancer>>;
+        ObjectMapper mapper = new ObjectMapper();
+
+        Files.lines(Paths.get(filePathListSampo), StandardCharsets.UTF_8).forEach(s -> {
+            try {
+                listSampo.add(mapper.readValue(s, Dancer.class));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        });
+        return listSampo;
+*/
+
     public static void saveWaitingListToFile(ArrayList<ArrayList<Dancer>> listSampo) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 

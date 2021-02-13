@@ -102,6 +102,20 @@ public class ListSampo {
                 pair.set(0,dancer);
             }
         }
+        try {
+            util.Converter.saveListSampoToFile(mainListSampo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Dancer getFollowerWithEmptySlot() {
+        Dancer dancer=emptyFollower;
+        for (var pair:mainListSampo) {
+            if (pair.contains(emptyLeader)) {
+                dancer=pair.get(1);
+            }
+        }return dancer;
     }
 
     public void addFollowerToEmptySlot(Dancer dancer) {
@@ -110,6 +124,20 @@ public class ListSampo {
                 pair.set(1,dancer);
             }
         }
+        try {
+            util.Converter.saveListSampoToFile(mainListSampo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Dancer getLeaderWithEmptySlot() {
+        Dancer dancer=emptyLeader;
+        for (var pair:mainListSampo) {
+            if (pair.contains(emptyFollower)) {
+                dancer=pair.get(0);
+            }
+        }return dancer;
     }
 
 

@@ -47,6 +47,11 @@ public class WaitingListSampo {
         for (var pair:waitingList){
             if (pair.contains(dancer)) {waitingList.remove(pair);}
         }
+        try {
+            util.Converter.saveWaitingListToFile(waitingList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean hasDancersInWaitingList() {
@@ -59,6 +64,11 @@ public class WaitingListSampo {
     public Dancer removeFirstFromWaitingList() {
         pojo.Dancer followerToRemove = waitingList.get(0).get(1);
         waitingList.remove(0);
+        try {
+            util.Converter.saveWaitingListToFile(waitingList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return followerToRemove;
     }
 
