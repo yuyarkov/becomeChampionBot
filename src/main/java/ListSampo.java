@@ -33,17 +33,21 @@ public class ListSampo {
     }
 
     public boolean hasEmptySlotForFollower() {
-        boolean result=false;
-        for (var pair:mainListSampo) {
-            if (pair.contains(emptyFollower)) {result=true;}
+        boolean result = false;
+        for (var pair : mainListSampo) {
+            if (pair.contains(emptyFollower)) {
+                result = true;
+            }
         }
         return result;
     }
 
     public boolean hasEmptySlotForLeader() {
-        boolean result=false;
-        for (var pair:mainListSampo) {
-            if (pair.contains(emptyLeader)) {result=true;}
+        boolean result = false;
+        for (var pair : mainListSampo) {
+            if (pair.contains(emptyLeader)) {
+                result = true;
+            }
         }
         return result;
     }
@@ -71,13 +75,13 @@ public class ListSampo {
             if (dancer.getSex().equals(Dancer.FOLLOWER)) {
                 if (hasEmptySlotForFollower()) {
                     addFollowerToEmptySlot(dancer);
+                } else {
+                    pair.add(emptyLeader);
+                    pair.add(dancer);
+                    mainListSampo.add(pair);
                 }
-                else {
-                pair.add(emptyLeader);
-                pair.add(dancer);
-                mainListSampo.add(pair);}
             }
-            if (dancer.getSex().equals(Dancer.LEADER)){
+            if (dancer.getSex().equals(Dancer.LEADER)) {
                 if (hasEmptySlotForLeader()) {
                     addLeaderToEmptySlot(dancer);
                 } else {
@@ -97,9 +101,9 @@ public class ListSampo {
     }
 
     public void addLeaderToEmptySlot(Dancer dancer) {
-        for (var pair:mainListSampo) {
+        for (var pair : mainListSampo) {
             if (pair.contains(emptyLeader)) {
-                pair.set(0,dancer);
+                pair.set(0, dancer);
             }
         }
         try {
@@ -110,18 +114,19 @@ public class ListSampo {
     }
 
     public Dancer getFollowerWithEmptySlot() {
-        Dancer dancer=emptyFollower;
-        for (var pair:mainListSampo) {
+        Dancer dancer = emptyFollower;
+        for (var pair : mainListSampo) {
             if (pair.contains(emptyLeader)) {
-                dancer=pair.get(1);
+                dancer = pair.get(1);
             }
-        }return dancer;
+        }
+        return dancer;
     }
 
     public void addFollowerToEmptySlot(Dancer dancer) {
-        for (var pair:mainListSampo) {
+        for (var pair : mainListSampo) {
             if (pair.contains(emptyFollower)) {
-                pair.set(1,dancer);
+                pair.set(1, dancer);
             }
         }
         try {
@@ -132,12 +137,13 @@ public class ListSampo {
     }
 
     public Dancer getLeaderWithEmptySlot() {
-        Dancer dancer=emptyLeader;
-        for (var pair:mainListSampo) {
+        Dancer dancer = emptyLeader;
+        for (var pair : mainListSampo) {
             if (pair.contains(emptyFollower)) {
-                dancer=pair.get(0);
+                dancer = pair.get(0);
             }
-        }return dancer;
+        }
+        return dancer;
     }
 
 
@@ -218,4 +224,26 @@ public class ListSampo {
     }
 
 
+    public boolean isAlreadySignedAlone(long chatID) {
+        boolean result = false;
+        for (ArrayList<Dancer> pair : mainListSampo) {
+            if ((pair.get(0).getChatID() == chatID && pair.get(1).equals(emptyFollower)) || (pair.get(1).getChatID() == chatID
+                    && pair.get(0).equals(emptyLeader))) {
+                result = true;
+            }
+        }
+        return result;
+
+    }
+
+    public boolean isAlreadySignedInPair(long chatID) {
+        boolean result = false;
+        for (ArrayList<Dancer> pair : mainListSampo) {
+            if ((pair.get(0).getChatID() == chatID && !pair.get(1).equals(emptyFollower)) ||
+                    (pair.get(1).getChatID() == chatID && !pair.get(0).equals(emptyLeader))) {
+                result = true;
+            }
+        }
+        return result;
+    }
 }

@@ -15,14 +15,15 @@ import java.util.HashSet;
 public class Converter {
 
     private final static String baseFile = "dancerBase.json";
-    private static String filePathListSampo="listSampo.json";
-    private static String filePathWaitingList="waitingList.json";
+    private static String filePathListSampo = "listSampo.json";
+    private static String filePathWaitingList = "waitingList.json";
 
-    public static void setFilePathListSampo(String path){
-        filePathListSampo=path;
+    public static void setFilePathListSampo(String path) {
+        filePathListSampo = path;
     }
-    public static void setFilePathWaitingList(String path){
-        filePathListSampo=path;
+
+    public static void setFilePathWaitingList(String path) {
+        filePathListSampo = path;
     }
 
 
@@ -85,20 +86,23 @@ public class Converter {
         }
     }
 
-/*
+
     public static ArrayList<ArrayList<Dancer>> readListSampoFromFile() throws IOException {
-        ArrayList<ArrayList<Dancer>> listSampo = new ArrayList<ArrayList<Dancer>>;
+        ArrayList<ArrayList<Dancer>> listSampo = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
 
         Files.lines(Paths.get(filePathListSampo), StandardCharsets.UTF_8).forEach(s -> {
             try {
-                listSampo.add(mapper.readValue(s, Dancer.class));
+                ArrayList<Dancer> pair=new ArrayList<>();
+                pair.add(mapper.readValue(s, Dancer.class));
+                pair.add(mapper.readValue(s, Dancer.class));
+                listSampo.add(pair);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         });
         return listSampo;
-*/
+    }
 
     public static void saveWaitingListToFile(ArrayList<ArrayList<Dancer>> listSampo) throws IOException {
         ObjectMapper mapper = new ObjectMapper();

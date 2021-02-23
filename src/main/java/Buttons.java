@@ -14,7 +14,6 @@ public class Buttons {
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
         List<InlineKeyboardButton> buttonsFirstRow = new ArrayList<>();
         List<InlineKeyboardButton> buttonsSecondRow = new ArrayList<>();
-        List<InlineKeyboardButton> buttonsThirdRow = new ArrayList<>();
 
         InlineKeyboardButton buttonShowList = new InlineKeyboardButton();
         buttonShowList.setCallbackData("ShowList");
@@ -32,24 +31,64 @@ public class Buttons {
         buttonsSecondRow.add(buttonAlone);
         buttons.add(buttonsSecondRow);
 
-        InlineKeyboardButton buttonCancelPair = new InlineKeyboardButton();
-        buttonCancelPair.setCallbackData("CancelPair");
-        buttonCancelPair.setText("Не сможем прийти оба");
-        InlineKeyboardButton buttonCancelAlone= new InlineKeyboardButton();
+        InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();
+        markupKeyboard.setKeyboard(buttons);
+        return markupKeyboard;
+    }
+
+    public static InlineKeyboardMarkup buttonsAfterSignUPAlone() {
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+        List<InlineKeyboardButton> buttonsFirstRow = new ArrayList<>();
+        List<InlineKeyboardButton> buttonsSecondRow = new ArrayList<>();
+
+        InlineKeyboardButton buttonShowList = new InlineKeyboardButton();
+        buttonShowList.setCallbackData("ShowList");
+        buttonShowList.setText("Посмотреть список");
+        buttonsFirstRow.add(buttonShowList);
+        buttons.add(buttonsFirstRow);
+
+        InlineKeyboardButton buttonPair = new InlineKeyboardButton();
+        buttonPair.setCallbackData("SignUpPair");
+        buttonPair.setText("Записаться парой");
+        InlineKeyboardButton buttonCancelAlone = new InlineKeyboardButton();
         buttonCancelAlone.setCallbackData("CancelAlone");
-        buttonCancelAlone.setText("\u274C"+" Я не смогу прийти");
-        buttonsThirdRow.add(buttonCancelPair);
-        buttonsThirdRow.add(buttonCancelAlone);
-        buttons.add(buttonsThirdRow);
+        buttonCancelAlone.setText("\u274C" + " Я не смогу прийти");
+        buttonsSecondRow.add(buttonPair);
+        buttonsSecondRow.add(buttonCancelAlone);
+        buttons.add(buttonsSecondRow);
 
         InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();
         markupKeyboard.setKeyboard(buttons);
         return markupKeyboard;
     }
 
+    public static InlineKeyboardMarkup buttonsAfterSignUPPair() {
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+        List<InlineKeyboardButton> buttonsFirstRow = new ArrayList<>();
+        List<InlineKeyboardButton> buttonsSecondRow = new ArrayList<>();
 
+        InlineKeyboardButton buttonShowList = new InlineKeyboardButton();
+        buttonShowList.setCallbackData("ShowList");
+        buttonShowList.setText("Посмотреть список");
+        buttonsFirstRow.add(buttonShowList);
+        buttons.add(buttonsFirstRow);
 
-    public static void setButtonsAfterAddingToWaitingList(SendMessage sendMessage) {
+        InlineKeyboardButton buttonCancelPair = new InlineKeyboardButton();
+        buttonCancelPair.setCallbackData("CancelPair");
+        buttonCancelPair.setText("Не сможем прийти оба");
+        InlineKeyboardButton buttonCancelAlone = new InlineKeyboardButton();
+        buttonCancelAlone.setCallbackData("CancelAlone");
+        buttonCancelAlone.setText("\u274C" + " Я не смогу прийти");
+        buttonsSecondRow.add(buttonCancelPair);
+        buttonsSecondRow.add(buttonCancelAlone);
+        buttons.add(buttonsSecondRow);
+
+        InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();
+        markupKeyboard.setKeyboard(buttons);
+        return markupKeyboard;
+    }
+
+/*    public static void setButtonsAfterAddingToWaitingList(SendMessage sendMessage) {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
         replyKeyboardMarkup.setSelective(true);
@@ -65,10 +104,10 @@ public class Buttons {
         keyboardSecondRow.add(new KeyboardButton("Посмотреть список"));
         keyboardRowList.add(keyboardSecondRow);
         replyKeyboardMarkup.setKeyboard(keyboardRowList);
-    }
+    }*/
 
 
-    public static InlineKeyboardMarkup setInitButtonsAfterStart() {
+    public static InlineKeyboardMarkup buttonsAfterStart() {
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
         List<InlineKeyboardButton> buttonsFirstRow = new ArrayList<>();
         InlineKeyboardButton buttonLeader = new InlineKeyboardButton();
@@ -85,9 +124,10 @@ public class Buttons {
         return markupKeyboard;
     }
 
-    public static InlineKeyboardMarkup setInitButtonsAskUserLastname() {
+    public static InlineKeyboardMarkup buttonsAskUserLastname() {
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
         List<InlineKeyboardButton> buttonsFirstRow = new ArrayList<>();
+
         InlineKeyboardButton buttonLeader = new InlineKeyboardButton();
         buttonLeader.setCallbackData("readmylastname");
         buttonLeader.setText("Запиши мою правильную фамилию");
@@ -97,6 +137,7 @@ public class Buttons {
         buttonsFirstRow.add(buttonLeader);
         buttonsFirstRow.add(buttonFollower);
         buttons.add(buttonsFirstRow);
+
         InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();
         markupKeyboard.setKeyboard(buttons);
         return markupKeyboard;

@@ -6,24 +6,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 
 public class Dancer {
-    public static final String LEADER = "Партнер";
+    public static final String LEADER = "Партнер";//Названия полов
     public static final String FOLLOWER = "Партнерша";
 
 
 
-    @JsonProperty("chatID")
+    @JsonProperty("chat_id")
     private long chatID;
 
-    @JsonProperty("First Name")
+    @JsonProperty("first_name")
     private String firstName;
 
-    @JsonProperty("Last Name")
+    @JsonProperty("last_name")
     private String lastName;
 
-    @JsonProperty("Telegram NickName")
+    @JsonProperty("telegram_nickname")
     private String telegramName;
 
-    @JsonProperty("Sex")
+    @JsonProperty("sex")
     private String sex;
 
     @JsonIgnore

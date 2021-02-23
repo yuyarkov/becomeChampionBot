@@ -89,4 +89,13 @@ public class WaitingListSampo {
     }
 
 
+    public boolean isAlredySigned(long chatID) {
+        boolean result = false;
+        for (int i = 0; i < waitingList.size(); i++) {
+            if (waitingList.get(i).get(0).getChatID()==chatID || waitingList.get(i).get(1).getChatID()==chatID) {
+                result = true;
+            }
+        }
+        return result;
+    }
 }

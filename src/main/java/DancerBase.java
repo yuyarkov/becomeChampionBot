@@ -1,28 +1,11 @@
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-
 import java.io.IOException;
 import java.util.HashSet;
 
 public class DancerBase {
     public static HashSet<pojo.Dancer> dancerBase = new HashSet<>();
-    public static String sourceDancerBase = "dancerBase.xml";
-
     public static pojo.Dancer emptyDancer = new pojo.Dancer("", "ПустойТанцор", pojo.Dancer.LEADER, 0, null);
 
-
-    public static void addNewDancer(pojo.Dancer dancer) {
-        try {
-            dancerBase = util.Converter.readDancerBaseFromFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        dancerBase.add(dancer);
-        try {
-            util.Converter.saveDancerBaseToFile(dancerBase);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static pojo.Dancer getDancerByChatID(long chatID) {
         pojo.Dancer dancerFound = emptyDancer;
@@ -36,7 +19,6 @@ public class DancerBase {
                 dancerFound = dancer;
             }
         }
-
         return dancerFound;
     }
 
@@ -56,6 +38,11 @@ public class DancerBase {
     }
 
     public static boolean hasDancerWithThisLastName(String lastName) {
+        try {
+            dancerBase = util.Converter.readDancerBaseFromFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         for (var dancer : dancerBase) {
             if (dancer.getLastName().equalsIgnoreCase(lastName)) {
                 return true;
@@ -65,6 +52,12 @@ public class DancerBase {
     }
 
     public static boolean isDancerWithThisChatID(long chatID) {
+        try {
+            dancerBase = util.Converter.readDancerBaseFromFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         for (var dancer : dancerBase) {
             if (dancer.getChatID() == chatID) {
                 return true;
@@ -78,6 +71,13 @@ public class DancerBase {
         String lastName = callbackQuery.getFrom().getLastName();
         long chatID = callbackQuery.getMessage().getChatId();
         String telegramName = callbackQuery.getFrom().getUserName();
+
+        try {
+            dancerBase = util.Converter.readDancerBaseFromFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         if (isDancerWithThisChatID(chatID)) {
             pojo.Dancer findDancer = getDancerByChatID(chatID);
             findDancer.setFirstName(firstName);

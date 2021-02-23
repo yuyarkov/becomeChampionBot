@@ -45,7 +45,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         Message receivedText = update.getMessage();
         if (update.hasMessage() && receivedText.hasText()) {
             replyToTelegram(CHAT_ID_DETOCHKIN, "log: " + receivedText.getText() + " chatID: " + receivedText.getChatId() +
-                    " firstname: " + receivedText.getFrom().getFirstName());
+                    " firstname: " + receivedText.getFrom().getFirstName()+" "+receivedText.getFrom().getLastName());
             reactToRequest(receivedText);
         } else if (update.hasCallbackQuery()) {
             reactToCallBack(update.getCallbackQuery(), update.getMessage());
@@ -56,7 +56,10 @@ public class becomeChampionBot extends TelegramLongPollingBot {
     public void reactToCallBack(CallbackQuery callbackQuery, Message message) {
         long chatID = callbackQuery.getMessage().getChatId();
         String currentDancerSex = DancerBase.getDancerByChatID(chatID).getSex();
-        replyToTelegram(CHAT_ID_DETOCHKIN, "log callback: " + callbackQuery.getData());
+        String firstName=callbackQuery.getFrom().getFirstName();
+        String lastName=callbackQuery.getFrom().getLastName();
+        replyToTelegram(CHAT_ID_DETOCHKIN, "log callback: " + callbackQuery.getData()+" chatID: "+chatID+
+                " "+firstName+" "+lastName);
         switch (callbackQuery.getData()) {
             case "Leader":
                 askWhatLastName(callbackQuery);
@@ -72,7 +75,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
                 waitingForLastName.put(chatID, false);
                 break;
             case "readmylastname":
-                replyToTelegram(chatID, "Понял. Напиши свою фамилию без кавычек:");
+                replyToTelegram(chatID, "Понял. Напиши свою фамилию русскими буквами без кавычек:");
                 waitingForLastName.put(chatID, true);
                 break;
             case "ShowList":
@@ -122,7 +125,19 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         }
 
         if (message.getText().equals("/start")) {
-            askWhatSex(message);
+            if (DancerBase.isDancerWithThisChatID(chatID)) {
+                Dancer dancer = DancerBase.getDancerByChatID(chatID);
+                replyToTelegram(chatID, "Привет, " + message.getFrom().getFirstName() + "!" +
+                        " Бот уже записал тебя в базу под именем *" + dancer.getFirstName() + " " + dancer.getLastName() + "*\n" +
+                        "Больше эту процедуру проходить не нужно, записывайся на сампо:");
+                sendListSampo(chatID);
+            } else {
+                askWhatSex(message);
+            }
+        }
+
+        if (message.getText().equals("Посмотреть список")) {
+            sendListSampo(chatID);
         }
 
         if (message.hasText() && !waitingForPartnerName.isEmpty() && waitingForPartnerName.get(chatID)) {
@@ -177,8 +192,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         } else {
             replyToTelegram(chatID, messageLastName + " — не нашёл такой фамилии в базе танцоров. Либо опечатка (тогда нажми ещё раз" +
                     " «Записаться в паре» и введи фамилию." +
-                    " Или напиши Деточкину, он добавит: @yuyarkov.\n" +
-                    "Вариант — пусть самостоятельно напишет боту.");
+                    " Или пусть самостоятельно напишет боту и заполнит информацию о себе.");
         }
 
     }
@@ -296,10 +310,10 @@ public class becomeChampionBot extends TelegramLongPollingBot {
     public void sendMessageAfterAddingToWaitingList(long chatID) {
         SendMessage messageAfterAfterSignUp = new SendMessage();
         messageAfterAfterSignUp.setChatId(String.valueOf(chatID));
-        messageAfterAfterSignUp.setText("Записал тебя в лист ожидания! Если кто-то из партнёрш отвалится, " +
+        messageAfterAfterSignUp.setText("Записал тебя в лист ожидания! Если кто-то из партнёрш основного списка отвалится, " +
                 "я автоматически запишу тебя к освободившемуся партнёру." +
                 " Ну лучше договорись с партнёром и запишитесь тогда вместе.");
-        Buttons.setButtonsAfterAddingToWaitingList(messageAfterAfterSignUp);
+        messageAfterAfterSignUp.setReplyMarkup(Buttons.buttonsAfterSignUPAlone());
         try {
             execute(messageAfterAfterSignUp);
         } catch (TelegramApiException e) {
@@ -311,7 +325,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
     public void sendMessageAfterInit(long chatID) {
         SendMessage messageAfterInit = new SendMessage();
         messageAfterInit.setChatId(String.valueOf(chatID));
-        messageAfterInit.setText("Готово. Обновил информацию о тебе в нашей маленькой базе будущих чемпионов.\n" +
+        messageAfterInit.setText("Готово. Добавил информацию о тебе в нашей маленькой базе будущих чемпионов.\n" +
                 "Больше эту процедуру проходить не нужно.\n" +
                 "Записывайся на следующее сампо");
         messageAfterInit.setReplyMarkup(Buttons.buttonsBeforeSignUP());
@@ -350,8 +364,9 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         String firstName = message.getFrom().getFirstName();
         SendMessage messageInit = new SendMessage();
         messageInit.setChatId(message.getChatId().toString());
-        messageInit.setText("Привет, " + firstName + "! Бот пока ещё не умеет определять пол. Подскажи, кто ты?");
-        messageInit.setReplyMarkup(Buttons.setInitButtonsAfterStart());
+        messageInit.setText("Привет, " + firstName + "! Бот сначала должен записать тебя в базу. " +
+                "Эту процедуру нужно проделать один раз. Подскажи, кто ты?");
+        messageInit.setReplyMarkup(Buttons.buttonsAfterStart());
         try {
             execute(messageInit);
         } catch (TelegramApiException e) {
@@ -366,9 +381,9 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         if (lastname == null) {
             messageInit.setText("У тебя в телеграме не заполнена фамилия. Давай запишу правильную фамилию, с которой ты будешь записываться на сампо.");
         } else {
-            messageInit.setText("Твоя фамилия в телеграме: " + lastname + "\n Оставить эту фамилию? (нажми одну из кнопок ниже)");
+            messageInit.setText("Твоя фамилия в телеграме: " + lastname + "\n Исправить? (нажми одну из кнопок ниже)");
         }
-        messageInit.setReplyMarkup(Buttons.setInitButtonsAskUserLastname());
+        messageInit.setReplyMarkup(Buttons.buttonsAskUserLastname());
         try {
             execute(messageInit);
         } catch (TelegramApiException e) {
@@ -411,6 +426,7 @@ public class becomeChampionBot extends TelegramLongPollingBot {
     public void replyToTelegram(long chatID, String text) {
         SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
         message.setChatId(String.valueOf(chatID));
+        message.enableMarkdown(true);
         message.setText(text);
         try {
             execute(message); // Call method to send the message
@@ -423,11 +439,17 @@ public class becomeChampionBot extends TelegramLongPollingBot {
         SendMessage messageWithList = new SendMessage(); // Create a SendMessage object with mandatory fields
         messageWithList.setChatId(String.valueOf(chatID));
         messageWithList.enableMarkdown(true);
-        messageWithList.setText("*Текущий список на сампо 22 февраля:*\n(пока тестовый режим, список не сохраняется)\n\n"
+        messageWithList.setText("*Текущий список на сампо 1 марта:*\n\n"
                 + nextSampoList.printToString()
                 + "\n*Лист ожидания:*\n"
                 + nextSampoWaitingList.printToString());
-        messageWithList.setReplyMarkup(Buttons.buttonsBeforeSignUP());
+        if (nextSampoList.isAlreadySignedAlone(chatID) || nextSampoWaitingList.isAlredySigned(chatID)) {
+            messageWithList.setReplyMarkup(Buttons.buttonsAfterSignUPAlone());
+        } else if (nextSampoList.isAlreadySignedInPair(chatID)) {
+            messageWithList.setReplyMarkup(Buttons.buttonsAfterSignUPPair());
+        } else {
+            messageWithList.setReplyMarkup(Buttons.buttonsBeforeSignUP());
+        }
         try {
             execute(messageWithList); // Call method to send the message
         } catch (TelegramApiException e) {
@@ -482,13 +504,11 @@ public class becomeChampionBot extends TelegramLongPollingBot {
 
         try {
             DancerBase.dancerBase = util.Converter.readDancerBaseFromFile();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-        nextSampoList = new ListSampo(LocalDate.of(2021, Month.FEBRUARY, 1));
-        nextSampoWaitingList = new WaitingListSampo(LocalDate.of(2021, Month.FEBRUARY, 1));
+        nextSampoList = new ListSampo(LocalDate.of(2021, Month.MARCH, 1));
+        nextSampoWaitingList = new WaitingListSampo(LocalDate.of(2021, Month.MARCH, 1));
 
 
         try {
@@ -496,7 +516,6 @@ public class becomeChampionBot extends TelegramLongPollingBot {
             var currentBot = new becomeChampionBot();
             botsApi.registerBot(currentBot);
             updatedListSampo = nextSampoList.printToString();
-            //    currentBot.sendListSampo();
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
