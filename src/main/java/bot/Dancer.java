@@ -1,14 +1,11 @@
-package pojo;
+package bot;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.HashSet;
-
 public class Dancer {
     public static final String LEADER = "Партнер";//Названия полов
     public static final String FOLLOWER = "Партнерша";
-
 
 
     @JsonProperty("chat_id")

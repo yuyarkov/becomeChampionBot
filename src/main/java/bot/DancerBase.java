@@ -1,16 +1,19 @@
+package bot;
+
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+
 import java.io.IOException;
 import java.util.HashSet;
 
 public class DancerBase {
-    public static HashSet<pojo.Dancer> dancerBase = new HashSet<>();
-    public static pojo.Dancer emptyDancer = new pojo.Dancer("", "ПустойТанцор", pojo.Dancer.LEADER, 0, null);
+    public static HashSet<Dancer> dancerBase = new HashSet<>();
+    public static Dancer emptyDancer = new Dancer("", "ПустойТанцор", Dancer.LEADER, 0, null);
 
 
-    public static pojo.Dancer getDancerByChatID(long chatID) {
-        pojo.Dancer dancerFound = emptyDancer;
+    public static Dancer getDancerByChatID(long chatID) {
+        Dancer dancerFound = emptyDancer;
         try {
-            dancerBase = util.Converter.readDancerBaseFromFile();
+            dancerBase = Converter.readDancerBaseFromFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -22,10 +25,10 @@ public class DancerBase {
         return dancerFound;
     }
 
-    public static pojo.Dancer findDancerByLastName(String lastName) {
-        pojo.Dancer dancerFound = emptyDancer;
+    public static Dancer findDancerByLastName(String lastName) {
+        Dancer dancerFound = emptyDancer;
         try {
-            dancerBase = util.Converter.readDancerBaseFromFile();
+            dancerBase = Converter.readDancerBaseFromFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -39,7 +42,7 @@ public class DancerBase {
 
     public static boolean hasDancerWithThisLastName(String lastName) {
         try {
-            dancerBase = util.Converter.readDancerBaseFromFile();
+            dancerBase = Converter.readDancerBaseFromFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,7 +56,7 @@ public class DancerBase {
 
     public static boolean isDancerWithThisChatID(long chatID) {
         try {
-            dancerBase = util.Converter.readDancerBaseFromFile();
+            dancerBase = Converter.readDancerBaseFromFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -73,27 +76,27 @@ public class DancerBase {
         String telegramName = callbackQuery.getFrom().getUserName();
 
         try {
-            dancerBase = util.Converter.readDancerBaseFromFile();
+            dancerBase = Converter.readDancerBaseFromFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         if (isDancerWithThisChatID(chatID)) {
-            pojo.Dancer findDancer = getDancerByChatID(chatID);
+            Dancer findDancer = getDancerByChatID(chatID);
             findDancer.setFirstName(firstName);
             findDancer.setLastName(lastName);
             findDancer.setTelegramName(telegramName);
         } else if (hasDancerWithThisLastName(lastName)) {
-            pojo.Dancer findDancer = findDancerByLastName(lastName);
+            Dancer findDancer = findDancerByLastName(lastName);
             findDancer.setChatID(chatID);
             findDancer.setFirstName(firstName);
             findDancer.setTelegramName(telegramName);
         } else {
-            pojo.Dancer newDancer = new pojo.Dancer(firstName, lastName, becomeChampionBot.dialogDancerSex.get(chatID), chatID, telegramName);
+            Dancer newDancer = new Dancer(firstName, lastName, Application.dialogDancerSex.get(chatID), chatID, telegramName);
             dancerBase.add(newDancer);
         }
         try {
-            util.Converter.saveDancerBaseToFile(dancerBase);
+            Converter.saveDancerBaseToFile(dancerBase);
         } catch (IOException e) {
             e.printStackTrace();
         }

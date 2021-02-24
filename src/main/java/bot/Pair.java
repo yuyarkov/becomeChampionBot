@@ -1,12 +1,13 @@
-import pojo.Dancer;
+package bot;
 
-public class Pair extends pojo.Dancer {
-    private pojo.Dancer leader;
-    private pojo.Dancer follower;
+public class Pair extends Dancer {
+    private Dancer leader;
+    private Dancer follower;
 
     public Dancer getLeader() {
         return leader;
     }
+
     public void setLeader(Dancer leader) {
         this.leader = leader;
     }
@@ -19,14 +20,13 @@ public class Pair extends pojo.Dancer {
     }
 
 
-    public Pair (pojo.Dancer dancer1, pojo.Dancer dancer2) {
+    public Pair(Dancer dancer1, Dancer dancer2) {
         if (dancer1.getSex().equals(Dancer.LEADER)) {
-            this.leader=dancer1;
-            this.follower=dancer2;
-        }
-        else {
-            this.leader=dancer2;
-            this.follower=dancer1;
+            this.leader = dancer1;
+            this.follower = dancer2;
+        } else {
+            this.leader = dancer2;
+            this.follower = dancer1;
         }
     }
 

@@ -1,9 +1,8 @@
+package bot;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-
-import pojo.Dancer;
 
 public class ListSampo {
     private ArrayList<ArrayList<Dancer>> mainListSampo;
@@ -12,7 +11,7 @@ public class ListSampo {
     private LocalDate sampoDate;
     public String filePathListSampo;
     private Dancer emptyFollower = new Dancer("", "в поиске", Dancer.FOLLOWER, 0, "emptyFollower");
-    private Dancer emptyLeader = new Dancer("", "в поиске", Dancer.LEADER, becomeChampionBot.CHAT_ID_DETOCHKIN, "emptyLeader");
+    private Dancer emptyLeader = new Dancer("", "в поиске", Dancer.LEADER, 0, "emptyLeader");
 
     public ListSampo(LocalDate sampoDate) {//конструктор с одной датой на входе
         this.sampoDate = sampoDate;
@@ -63,7 +62,7 @@ public class ListSampo {
         }
         mainListSampo.add(pair);
         try {
-            util.Converter.saveListSampoToFile(mainListSampo);
+            Converter.saveListSampoToFile(mainListSampo);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -91,7 +90,7 @@ public class ListSampo {
                 }
             }
             try {
-                util.Converter.saveListSampoToFile(mainListSampo);
+                Converter.saveListSampoToFile(mainListSampo);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -107,7 +106,7 @@ public class ListSampo {
             }
         }
         try {
-            util.Converter.saveListSampoToFile(mainListSampo);
+            Converter.saveListSampoToFile(mainListSampo);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -130,7 +129,7 @@ public class ListSampo {
             }
         }
         try {
-            util.Converter.saveListSampoToFile(mainListSampo);
+            Converter.saveListSampoToFile(mainListSampo);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -154,7 +153,7 @@ public class ListSampo {
                 mainListSampo.remove(pair);
             }
             try {
-                util.Converter.saveListSampoToFile(mainListSampo);
+                Converter.saveListSampoToFile(mainListSampo);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -178,7 +177,7 @@ public class ListSampo {
             }
         }
         try {
-            util.Converter.saveListSampoToFile(mainListSampo);
+            Converter.saveListSampoToFile(mainListSampo);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -198,7 +197,7 @@ public class ListSampo {
         return DancerBase.emptyDancer;
     }
 
-    public boolean isAlreadySigned(pojo.Dancer dancer) {
+    public boolean isAlreadySigned(Dancer dancer) {
         boolean result = false;
         for (ArrayList<Dancer> pair : mainListSampo) {
             if (pair.contains(dancer)) {
