@@ -1,4 +1,4 @@
-package bot;
+package bot.misc;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -85,25 +85,6 @@ public class Buttons {
         markupKeyboard.setKeyboard(buttons);
         return markupKeyboard;
     }
-
-/*    public static void setButtonsAfterAddingToWaitingList(SendMessage sendMessage) {
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        sendMessage.setReplyMarkup(replyKeyboardMarkup);
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(false);
-
-        List<KeyboardRow> keyboardRowList = new ArrayList<>();
-        KeyboardRow keyboardFirstRow = new KeyboardRow();
-        keyboardFirstRow.add(new KeyboardButton("Записаться парой"));
-        keyboardFirstRow.add(new KeyboardButton("Я не смогу прийти"));
-        keyboardRowList.add(keyboardFirstRow);
-        KeyboardRow keyboardSecondRow = new KeyboardRow();
-        keyboardSecondRow.add(new KeyboardButton("Посмотреть список"));
-        keyboardRowList.add(keyboardSecondRow);
-        replyKeyboardMarkup.setKeyboard(keyboardRowList);
-    }*/
-
 
     public static InlineKeyboardMarkup buttonsAfterStart() {
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();

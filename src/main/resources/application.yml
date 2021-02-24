@@ -4,3 +4,6 @@ bot:
 
 app:
   admin-id: 238349375
+
+logging:
+  config: log4j.properties

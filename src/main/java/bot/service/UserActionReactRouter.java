@@ -1,10 +1,13 @@
-package bot.react;
+package bot.service;
 
-import bot.Buttons;
-import bot.ListSampo;
+import bot.misc.Buttons;
 import bot.model.Dancer;
+import bot.model.Pair;
+import bot.repository.ConfigRepository;
 import bot.repository.DancerRepository;
-import bot.repository.DancerRepositoryImpl;
+import bot.repository.SampoListRepository;
+import lombok.RequiredArgsConstructor;
+import org.jvnet.hk2.annotations.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -12,22 +15,23 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
+@Service
+@RequiredArgsConstructor
 public class UserActionReactRouter {
 
-    private static Map<Long, Boolean> waitingForPartnerName = new HashMap<>(); //статус, где записывается парой и указывае фамилию партнера/партнерши*/
-    private static Map<Long, Boolean> waitingForLastName = new HashMap<>(); //статус, где юзеру нужно ввести свою фамилию
+    private final Map<Long, Boolean> waitingForPartnerName = new HashMap<>(); //статус, где записывается парой и указывае фамилию партнера/партнерши*/
+    private final Map<Long, Boolean> waitingForLastName = new HashMap<>(); //статус, где юзеру нужно ввести свою фамилию
     //ключ - chatID, 0 - имя тг, 1 - фамилия тг, 2 - пол, 3 - ник в телеграме, 4 - жду фамилию самого юзера, 5 - жду фамилию партнера/партнерши
-    private static Map<Long, String> dialogDancerSex = new HashMap<>(); //юзер при начале общения с ботом указывает свой пол
-    private static String updatedListSampo;
-    private static ListSampo nextSampoList = new ListSampo(LocalDate.of(2021, Month.MARCH, 1));
-    ;
-    private static Queue<Dancer> waitingListSampo = new LinkedList<>();
-    private static DancerRepository dancerRepository = new DancerRepositoryImpl();
+    private final Map<Long, String> dialogDancerSex = new HashMap<>(); //юзер при начале общения с ботом указывает свой пол
+    private final DancerRepository dancerRepository;
+    private final SampoListRepository sampoListRepository;
+    private ConfigRepository configRepository;
 
     public List<SendMessage> getReaction(Update request) {
 
@@ -63,15 +67,11 @@ public class UserActionReactRouter {
             case "SignUpPair":
                 return askPartnerName(chatID);
             case "SignUpAlone":
-                if (currentDancerSex.equals(Dancer.FOLLOWER)) {
-                    return signUpLonelyGirl(message);
-                } else {
-                    return signUpAlone(chatID);
-                }
+                return signUpAlone(chatID);
             case "CancelAlone":
-                return cancelAlone(chatID);
+                return cancel(chatID, false);
             case "CancelPair":
-                return cancelPair(chatID);
+                return cancel(chatID, true);
         }
 
         return List.of(replyToTelegramMsg(chatID, "Такому не обучен", null));
@@ -125,7 +125,14 @@ public class UserActionReactRouter {
         String lastName = callbackQuery.getFrom().getLastName();
         long chatID = callbackQuery.getMessage().getChatId();
         String telegramName = callbackQuery.getFrom().getUserName();
-        return new Dancer(firstName, lastName, dialogDancerSex.get(chatID), chatID, telegramName);
+
+        return Dancer.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .chatID(chatID)
+                .telegramName(telegramName)
+                .sex(dialogDancerSex.get(chatID))
+                .build();
     }
 
     private SendMessage replyToTelegramMsg(long chatID, String text, ReplyKeyboard replyMarkup) {
@@ -145,21 +152,21 @@ public class UserActionReactRouter {
     }
 
     public List<SendMessage> signUpWithPartner(long chatID, Dancer dancer1, Dancer dancer2) {
-        if (nextSampoList.isAlreadySigned(dancer1)) {
+        if (sampoListRepository.isSigned(dancer1.getChatID())) {
             return List.of(replyToTelegramMsg(chatID, "Ошибка: " + dancer1.getFirstName() + " " + dancer1.getLastName() + " уже есть в списке.", null));
         }
-        if (nextSampoList.isAlreadySigned(dancer2)) {
+        if (sampoListRepository.isSigned(dancer2.getChatID())) {
             return List.of(replyToTelegramMsg(chatID, "Ошибка: " + dancer2.getFirstName() + " " + dancer2.getLastName() + " уже есть в списке.", null));
         }
 
         var res = new ArrayList<SendMessage>();
 
         if (dancer1.getSex().equals(Dancer.LEADER)) {
-            nextSampoList.addPairToList(dancer1, dancer2);
+            sampoListRepository.sign(dancer1, dancer2);
             res.add(replyToTelegramMsg(dancer2.getChatID(), "Ты записана на следующее сампо в паре с партнёром: "
                     + dancer1.getFirstName() + " " + dancer1.getLastName(), null));
         } else {
-            nextSampoList.addPairToList(dancer2, dancer1);
+            sampoListRepository.sign(dancer2, dancer1);
             res.add(replyToTelegramMsg(dancer2.getChatID(), "Ты записан на следующее сампо в паре с партнёршей: "
                     + dancer1.getFirstName() + " " + dancer1.getLastName(), null));
         }
@@ -186,105 +193,60 @@ public class UserActionReactRouter {
 
     }
 
-
-    public List<SendMessage> signUpLonelyGirl(Message message) {
-        long chatID = message.getChatId();
-        Dancer dancerToAdd = dancerRepository.getByChatId(chatID);
-        if (nextSampoList.isAlreadySigned(dancerToAdd)) {
-            return List.of(replyToTelegramMsg(chatID, "Ты уже есть в основном списке))", null));
-        }
-        boolean success = nextSampoWaitingList.addToWaitingList(dancerToAdd);
-        if (!success) {
-            return List.of(replyToTelegramMsg(message.getChatId(), "Ты уже в листе ожидания", null));
-        } else {
-            return List.of(sendMessageAfterAddingToWaitingList(chatID));
-        }
-    }
-
     public List<SendMessage> signUpAlone(long chatID) {
 
         Dancer dancerToAdd = dancerRepository.getByChatId(chatID);
-        if (nextSampoList.isAlreadySigned(dancerToAdd)) {
+        if (sampoListRepository.isSigned(dancerToAdd.getChatID()) || sampoListRepository.isWaiting(chatID)) {
             return List.of(replyToTelegramMsg(chatID, "Ошибка: " + dancerToAdd.getFirstName() + " " + dancerToAdd.getLastName() +
                     " уже есть в списке", null));
         }
-        if (dancerToAdd.getSex().equals(Dancer.LEADER) && nextSampoList.hasEmptySlotForLeader()) {
-            Dancer dancer2 = nextSampoList.getFollowerWithEmptySlot();
-            nextSampoList.addLeaderToEmptySlot(dancerToAdd);
-            updatedListSampo = nextSampoList.printToString();
-            return List.of(replyToTelegramMsg(dancer2.getChatID(), "Записал к тебе в пару танцора: " +
-                            dancerToAdd.getFirstName() + " " + dancerToAdd.getLastName(), null),
-                    replyToTelegramMsg(chatID, "Записал тебя вместе с партнёршей: " +
-                            dancer2.getFirstName() + " " + dancer2.getLastName(), null));
-        }
 
-        if (dancerToAdd.getSex().equals(Dancer.LEADER) && nextSampoWaitingList.hasDancersInWaitingList()) {
-            Dancer dancer2 = nextSampoWaitingList.removeFirstFromWaitingList();
-            nextSampoList.addPairToList(dancerToAdd, dancer2);
-            updatedListSampo = nextSampoList.printToString();
-            return List.of(replyToTelegramMsg(dancer2.getChatID(), "Перенёс тебя из листа ожидания в основной список," +
-                            "в пару к танцору: " + dancerToAdd.getFirstName() + " " + dancerToAdd.getLastName(), null),
-                    replyToTelegramMsg(chatID, "Записал тебя вместе с партнёршей из листа ожидания: " +
-                            dancer2.getFirstName() + " " + dancer2.getLastName(), null));
-        }
-
-        boolean success = nextSampoList.addDancerToList(dancerToAdd);
         var res = new ArrayList<SendMessage>();
-        if (success) {
-            updatedListSampo = nextSampoList.printToString();
+
+        var freeDancer = sampoListRepository.getFirstWaiting();
+        if (freeDancer != null && !freeDancer.getSex().equals(dancerToAdd.getSex())) {//если очередь не пуста и первый противоположенного пола
+            sampoListRepository.sign(freeDancer, dancerToAdd);
+            sampoListRepository.removeFromWaiting(freeDancer.getChatID());//удалить из листа ожидания
+            res.add(replyToTelegramMsg(freeDancer.getChatID(), "Записал к тебе в пару танцора: " +
+                    dancerToAdd.getFirstName() + " " + dancerToAdd.getLastName(), null));
+            res.add(replyToTelegramMsg(chatID, "Записал тебя вместе с партнёршей: " +
+                    freeDancer.getFirstName() + " " + freeDancer.getLastName(), null));
         } else {
-            res.add(replyToTelegramMsg(chatID, "Ты уже в списке", null));
+            sampoListRepository.addWaiting(dancerToAdd.getChatID());
+            sendMessageAfterAddingToWaitingList(chatID);
         }
+
         res.add(sendMessageAfterSignUp(chatID));
 
         return res;
     }
 
-    public List<SendMessage> cancelAlone(long chatID) {
+    public List<SendMessage> cancel(long chatID, boolean cancelPartner) {
 
         var res = new ArrayList<SendMessage>();
 
         Dancer dancerToRemove = dancerRepository.getByChatId(chatID);
 
-        nextSampoList.removeDancerFromList(dancerToRemove);
-        if (dancerToRemove.getSex().equals(Dancer.FOLLOWER) && nextSampoWaitingList.hasDancersInWaitingList()) {
-            Dancer dancerToAdd = nextSampoWaitingList.removeFirstFromWaitingList();
-            nextSampoList.addFollowerToEmptySlot(dancerToAdd);
-            res.add(replyToTelegramMsg(dancerToAdd.getChatID(), "Перенёс тебя из списка ожидания в основной список, " +
-                    "в пару к танцору: " + nextSampoList.findPairByDancer(dancerToAdd), null));
-        }
-        updatedListSampo = nextSampoList.printToString();
-        res.add(replyToTelegramMsg(chatID, "Удалил тебя из списка", Buttons.buttonsBeforeSignUP()));
+        Pair pair = sampoListRepository.getPair(chatID);
+        boolean isWaiting = sampoListRepository.isWaiting(chatID);
 
-        return res;
-    }
-
-    public List<SendMessage> cancelPair(long chatID) {
-
-        var res = new ArrayList<SendMessage>();
-
-        Dancer firstDancerToRemove = dancerRepository.getByChatId(chatID);
-
-        Dancer secondDancerToRemove = nextSampoList.findPairByDancer(firstDancerToRemove);
-        System.out.println("буду удалять пару: " + firstDancerToRemove.getLastName() + " - " + secondDancerToRemove.getLastName());
-
-        if (secondDancerToRemove == null) {
-            return List.of(replyToTelegramMsg(chatID, "Не вижу в списке вашу пару. Чтобы отменить запись, надо сначала записаться))", null));
+        if (pair == null && !isWaiting) {
+            res.add(replyToTelegramMsg(chatID, "Тебя не было в списке", Buttons.buttonsBeforeSignUP()));
+            return res;
         }
 
-        nextSampoList.removePairFromList(firstDancerToRemove, secondDancerToRemove);
-
-        updatedListSampo = nextSampoList.printToString();
-        res.add(replyToTelegramMsg(chatID, "Удалил из списка вашу пару: " + firstDancerToRemove.getLastName() + " - " + secondDancerToRemove.getLastName(), null));
-        res.add(sendMessageAfterCancelPair(chatID));
-        if (firstDancerToRemove.getSex().equals(Dancer.LEADER)) {
-            res.add(replyToTelegramMsg(secondDancerToRemove.getChatID(), firstDancerToRemove.getFirstName() +
-                    " " + firstDancerToRemove.getLastName() + " попросил отменить вашу запись на сампо. Удалил вас из списка!", null));
+        if (isWaiting) {
+            sampoListRepository.removeFromWaiting(dancerToRemove.getChatID());
         } else {
-            res.add(replyToTelegramMsg(secondDancerToRemove.getChatID(), firstDancerToRemove.getFirstName() +
-                    " " + firstDancerToRemove.getLastName() + " попросила отменить вашу запись на сампо. Удалил вас из списка!", null));
+            sampoListRepository.removeFromMainListAndAddToWait(chatID);
         }
+        res.add(replyToTelegramMsg(chatID, "Удалил тебя из списка" + (cancelPartner ? ", по просьбе партнера" : ""), Buttons.buttonsBeforeSignUP()));
 
+        if (cancelPartner) {
+            cancel(chatID, false);
+        } else {
+            res.addAll(signUpAlone(pair.getFollower().getChatID() == chatID ? pair.getLeader().getChatID() : pair.getFollower().getChatID()));
+        }
         return res;
     }
 
@@ -294,8 +256,8 @@ public class UserActionReactRouter {
 
     public SendMessage sendMessageAfterAddingToWaitingList(long chatID) {
 
-        return replyToTelegramMsg(chatID, "Записал тебя в лист ожидания! Если кто-то из партнёрш основного списка отвалится, " +
-                "я автоматически запишу тебя к освободившемуся партнёру." +
+        return replyToTelegramMsg(chatID, "Записал тебя в лист ожидания! Если кто-то из основного списка отвалится, " +
+                "я автоматически запишу тебя к освободившемуся." +
                 " Ну лучше договорись с партнёром и запишитесь тогда вместе.", Buttons.buttonsAfterSignUPAlone());
 
     }
@@ -352,7 +314,14 @@ public class UserActionReactRouter {
         String lastName = message.getText();
         String firstName = message.getFrom().getFirstName();
         String telegramName = message.getFrom().getUserName();
-        return new Dancer(firstName, lastName, dialogDancerSex.get(chatID), chatID, telegramName);
+
+        return Dancer.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .chatID(chatID)
+                .telegramName(telegramName)
+                .sex(dialogDancerSex.get(chatID))
+                .build();
     }
 
 
@@ -360,24 +329,17 @@ public class UserActionReactRouter {
 
         InlineKeyboardMarkup button;
 
-        SendMessage messageWithList = new SendMessage(); // Create a SendMessage object with mandatory fields
-        messageWithList.setChatId(String.valueOf(chatID));
-        messageWithList.enableMarkdown(true);
-        messageWithList.setText("*Текущий список на сампо 1 марта:*\n\n"
-                + nextSampoList.printToString()
-                + "\n*Лист ожидания:*\n"
-                + nextSampoWaitingList.printToString());
-        if (nextSampoList.isAlreadySignedAlone(chatID) || nextSampoWaitingList.isAlredySigned(chatID)) {
+        if (sampoListRepository.isWaiting(chatID)) {
             button = Buttons.buttonsAfterSignUPAlone();
-        } else if (nextSampoList.isAlreadySignedInPair(chatID)) {
+        } else if (sampoListRepository.isSigned(chatID)) {
             button = Buttons.buttonsAfterSignUPPair();
         } else {
             button = Buttons.buttonsBeforeSignUP();
         }
 
-        return List.of(replyToTelegramMsg(chatID, "*Текущий список на сампо 1 марта:*\n\n"
-                + nextSampoList.printToString()
+        return List.of(replyToTelegramMsg(chatID, "*Текущий список на сампо " + configRepository.getNextSampoDate() + ":*\n\n"
+                + sampoListRepository.getMainListAsText()
                 + "\n*Лист ожидания:*\n"
-                + nextSampoWaitingList.printToString(), button));
+                + sampoListRepository.getWaitingListAsText(), button));
     }
 }
