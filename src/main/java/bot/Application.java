@@ -1,7 +1,10 @@
 package bot;
 
+import bot.repository.Converter;
+import bot.service.BecomeChampionBotService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
@@ -10,6 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+
+@SpringBootApplication
 public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
     public static BecomeChampionBotService exchange = new BecomeChampionBotService();

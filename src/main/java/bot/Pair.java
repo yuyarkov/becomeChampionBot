@@ -1,5 +1,7 @@
 package bot;
 
+import bot.model.Dancer;
+
 public class Pair extends Dancer {
     private Dancer leader;
     private Dancer follower;

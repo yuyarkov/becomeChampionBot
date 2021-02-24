@@ -1,5 +1,8 @@
 package bot;
 
+import bot.model.Dancer;
+import bot.repository.Converter;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;

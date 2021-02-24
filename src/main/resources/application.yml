@@ -1,0 +1,6 @@
+bot:
+  name: becomeChampionBot
+  token: ${TOKEN_BECOME_CHAMPION_BOT}
+
+app:
+  admin-id: 238349375

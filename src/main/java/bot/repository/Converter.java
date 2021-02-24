@@ -1,5 +1,6 @@
-package bot;
+package bot.repository;
 
+import bot.model.Dancer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,7 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Converter {
 
@@ -28,27 +30,28 @@ public class Converter {
     }
 
 
-    public static void saveDancerBaseToFile(HashSet<Dancer> dancerBase) throws IOException {
+    public static void saveDancerBaseToFile(Map<Long, Dancer> dancerBase) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
         try (OutputStream output = Files.newOutputStream(Path.of(baseFile));
              PrintStream sender = new PrintStream(output)) {
-            for (var dancer : dancerBase)
+            for (var dancer : dancerBase.entrySet())
                 try {
-                    sender.println(mapper.writeValueAsString(dancer));
+                    sender.println(mapper.writeValueAsString(dancer.getValue()));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
         }
     }
 
-    public static HashSet<Dancer> readDancerBaseFromFile() throws IOException {
-        HashSet<Dancer> dancerBase = new HashSet<>();
+    public static Map<Long, Dancer> readDancerBaseFromFile() throws IOException {
+        var dancerBase = new HashMap<Long, Dancer>();
         ObjectMapper mapper = new ObjectMapper();
 
         Files.lines(Paths.get(baseFile), StandardCharsets.UTF_8).forEach(s -> {
             try {
-                dancerBase.add(mapper.readValue(s, Dancer.class));
+                var dancer = mapper.readValue(s, Dancer.class);
+                dancerBase.put(dancer.getChatID(), dancer);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }

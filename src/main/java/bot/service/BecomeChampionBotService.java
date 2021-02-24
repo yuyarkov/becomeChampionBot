@@ -1,24 +1,30 @@
-package bot;
+package bot.service;
 
 import bot.react.UserActionReactRouter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.jvnet.hk2.annotations.Service;
+import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+@Service
+@Slf4j
 public class BecomeChampionBotService extends TelegramLongPollingBot {
 
-    private String botToken = System.getenv("TOKEN_BECOME_CHAMPION_BOT");
-    public static final long CHAT_ID_DETOCHKIN = 238349375L;//id моего чата, где я получаю все уведомления от программы
+    @Value("${bot.name}")
+    private String botUsername;
+    @Value("${bot.token}")
+    private String botToken;
+    @Value("${app.admin-id}")
+    private long adminId;
 
     private final bot.react.UserActionReactRouter userActionReactRouter = new UserActionReactRouter();
-    private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     @Override
     public void onUpdateReceived(Update update) {
-        replyToTelegram(CHAT_ID_DETOCHKIN, update.toString());
+        replyToTelegram(adminId, update.toString());
 
         try {
 
@@ -35,7 +41,7 @@ public class BecomeChampionBotService extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "becomeChampionBot";
+        return botUsername;
     }
 
     @Override
@@ -43,7 +49,7 @@ public class BecomeChampionBotService extends TelegramLongPollingBot {
         return botToken;
     }
 
-    public void replyToTelegram(long chatID, String text) {
+    private void replyToTelegram(long chatID, String text) {
         SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
         message.setChatId(String.valueOf(chatID));
         message.enableMarkdown(true);
@@ -51,7 +57,7 @@ public class BecomeChampionBotService extends TelegramLongPollingBot {
         try {
             execute(message); // Call method to send the message
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("send message to admin");
         }
     }
 }
