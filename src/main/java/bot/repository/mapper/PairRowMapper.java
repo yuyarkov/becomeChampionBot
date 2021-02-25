@@ -1,4 +1,4 @@
-package bot.repository;
+package bot.repository.mapper;
 
 import bot.model.PairDb;
 import org.springframework.jdbc.core.RowMapper;
@@ -10,8 +10,8 @@ public class PairRowMapper implements RowMapper<PairDb> {
     @Override
     public PairDb mapRow(ResultSet rs, int rowNum) throws SQLException {
         return PairDb.builder()
-                .leader(Long.parseLong(rs.getString("leader")))
-                .follower(Long.parseLong(rs.getString("follower")))
+                .leader(rs.getLong("leader"))
+                .follower(rs.getLong("follower"))
                 .build();
     }
 }

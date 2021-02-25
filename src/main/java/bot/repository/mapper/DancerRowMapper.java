@@ -1,4 +1,4 @@
-package bot.repository;
+package bot.repository.mapper;
 
 import bot.model.Dancer;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,8 +13,8 @@ public class DancerRowMapper implements RowMapper<Dancer> {
                 .telegramName(rs.getString("telegram_name"))
                 .lastName(rs.getString("last_name"))
                 .firstName(rs.getString("first_name"))
-                .sex(rs.getString("sex"))
-                .chatID(Long.parseLong(rs.getString("id")))
+                .sex(Dancer.mapSexFromDb(rs.getObject("man", Boolean.class)))
+                .chatID(rs.getLong("id"))
                 .build();
     }
 }

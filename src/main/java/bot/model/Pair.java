@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Pair extends Dancer {
+public class Pair {
     private Dancer leader;
     private Dancer follower;
 }

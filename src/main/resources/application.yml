@@ -5,5 +5,9 @@ bot:
 app:
   admin-id: 238349375
 
+spring:
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+
 logging:
-  config: log4j.properties
+  config: classpath:log4j.properties

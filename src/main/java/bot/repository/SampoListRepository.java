@@ -5,21 +5,21 @@ import bot.model.Pair;
 
 public interface SampoListRepository {
 
-    boolean isSigned(long dancer);
+    boolean inPair(long dancer);
 
-    void sign(Dancer dancer1, Dancer dancer2);
+    void writePair(long dancerId1, long dancerId2);
 
     Dancer getFirstWaiting();
 
-    void removeFromWaiting(long freeDancer);
+    String getPairListAsText();
 
     Pair getPair(long chatID);
 
+    void removeFromWaiting(long freeDancer);
+
     boolean isWaiting(long chatID);
 
-    void removeFromMainListAndAddToWait(long chatID);
-
-    String getMainListAsText();
+    void removeFromPairListAndAddToWait(long chatID);
 
     String getWaitingListAsText();
 

@@ -1,0 +1,10 @@
+bot:
+  name: becomeChampionBot
+  token: none
+
+app:
+  admin-id: 0
+
+spring:
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml

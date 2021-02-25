@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PairDb {
-    private long leader;
-    private long follower;
+public class PairShortDb {
+    private String leaderLastName;
+    private String followerLastName;
 }

@@ -5,15 +5,57 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
     <changeSet author="Alexandr Shumeyko" id="cl-2502212222">
-        <createTable tableName="signet_dancer">
+
+        <createTable tableName="bot_config">
+            <column name="id" type="VARCHAR">
+                <constraints nullable="false" primaryKey="false" unique="false"/>
+            </column>
+
+            <column name="value" type="TEXT">
+                <constraints nullable="false" primaryKey="false" unique="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="pair_dancer">
             <column name="sampo_date" type="TIMESTAMP">
+                <constraints nullable="false" primaryKey="false" unique="false"/>
+            </column>
+
+            <column name="dancer1" type="BIGINT">
+                <constraints nullable="false" primaryKey="false" unique="false"/>
+            </column>
+            <column name="dancer2" type="BIGINT">
                 <constraints nullable="false" primaryKey="false" unique="false"/>
             </column>
 
         </createTable>
 
         <createTable tableName="wait_dancer">
-            <column name="COLUMN1" type="TEXT">
+            <column name="sampo_date" type="TIMESTAMP">
+                <constraints nullable="false" primaryKey="false" unique="false"/>
+            </column>
+            <column name="dancer" type="BIGINT">
+                <constraints nullable="false" primaryKey="false" unique="false"/>
+            </column>
+            <column name="creation_time" type="BIGINT">
+                <constraints nullable="false" primaryKey="false" unique="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="dancer">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" unique="true"/>
+            </column>
+            <column name="first_name" type="VARCHAR">
+                <constraints nullable="true" primaryKey="false" unique="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR">
+                <constraints nullable="true" primaryKey="false" unique="false"/>
+            </column>
+            <column name="telegram_nickname" type="VARCHAR">
+                <constraints nullable="true" primaryKey="false" unique="false"/>
+            </column>
+            <column name="man" type="BOOLEAN">
                 <constraints nullable="true" primaryKey="false" unique="false"/>
             </column>
         </createTable>

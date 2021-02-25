@@ -1,48 +1,50 @@
 package bot.repository;
 
 import bot.model.Dancer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import bot.model.Tables;
+import bot.repository.mapper.DancerRowMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 
 @Service
+@RequiredArgsConstructor
 public class DancerRepositoryImpl implements DancerRepository {
 
-    private Map<Long, Dancer> dancerBase = new HashMap<>();
-    private Dancer emptyDancer = new Dancer("", "ПустойТанцор", Dancer.LEADER, 0, null);
-    private static final Logger log = LoggerFactory.getLogger(DancerRepositoryImpl.class);
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
-    public Dancer getByChatId(long id) {
-        return null;
+    public Dancer getDancerById(long dancerId) {
+        var query = "select * from " + Tables.DANCER_TABLE_NAME + " where  id = :id";
+        var param = Map.of("id", dancerId);
+        return jdbcTemplate.queryForObject(query, param, new DancerRowMapper());
     }
 
     @Override
     public Dancer getByLastName(String lastName) {
-        return null;
+        var query = "select * from " + Tables.DANCER_TABLE_NAME + " last_name = :lastName";
+        var param = Map.of("lastName", lastName);
+        return jdbcTemplate.queryForObject(query, param, new DancerRowMapper());
     }
 
     @Override
-    public void save(Dancer dancer) {
+    public void save(Dancer d) {
+        var query = "insert into " + Tables.DANCER_TABLE_NAME + "(id, first_name, last_name, telegram_nickname, sex) " +
+                "values (:id, :firstName, :lastName, :telegramNickname, :sex) " +
+                "ON CONFLICT (id) DO UPDATE set " +
+                "first_name=:firstName, last_name=:lastName, telegram_nickname=:telegramNickname, sex=:sex";
 
-        try {
-            dancerBase = Converter.readDancerBaseFromFile();
-        } catch (IOException e) {
-            log.error("read db", e);
-        }
+        var param = Map.of(
+                "id", d.getChatID(),
+                "firstName", d.getFirstName(),
+                "lastName", d.getLastName(),
+                "telegramNickname", d.getTelegramName(),
+                "sex", d.getSex());
 
-        dancerBase.put(dancer.getChatID(), dancer);
-
-        try {
-            Converter.saveDancerBaseToFile(dancerBase);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        jdbcTemplate.update(query, param);
     }
 
 }
