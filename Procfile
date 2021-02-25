@@ -1,1 +1,1 @@
-worker: sh target/bin/bot.Application
+worker: sh target/bin/bot.sampo.Application

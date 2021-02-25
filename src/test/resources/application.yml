@@ -8,3 +8,5 @@ app:
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
+  autoconfigure:
+    exclude: org.telegram.telegrambots.starter.TelegramBotStarterConfiguration
