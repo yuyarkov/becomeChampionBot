@@ -27,24 +27,23 @@ public class DancerRepositoryImpl implements DancerRepository {
 
     @Override
     public Dancer getByLastName(String lastName) {
-        var query = "select * from " + Tables.DANCER_TABLE_NAME + " last_name = :lastName";
+        var query = "select * from " + Tables.DANCER_TABLE_NAME + " where last_name = :lastName";
         var param = Map.of("lastName", lastName);
         return getOneOrNull(jdbcTemplate.query(query, param, new DancerRowMapper()));
     }
 
     @Override
     public void save(Dancer d) {
-        var query = "insert into " + Tables.DANCER_TABLE_NAME + "(id, first_name, last_name, telegram_name, man) " +
-                "values (:id, :firstName, :lastName, :telegramName, :man) " +
+        var query = "insert into " + Tables.DANCER_TABLE_NAME + "(id, first_name, last_name, leader) " +
+                "values (:id, :firstName, :lastName, :leader) " +
                 "ON CONFLICT (id) DO UPDATE set " +
-                "first_name=:firstName, last_name=:lastName, telegram_name=:telegramName, man=:man";
+                "first_name=:firstName, last_name=:lastName, leader=:leader";
 
         var param = Map.of(
                 "id", d.getChatID(),
                 "firstName", d.getFirstName(),
                 "lastName", d.getLastName(),
-                "telegramName", d.getTelegramName(),
-                "man", d.mapSexToDb());
+                "leader", d.isLeader());
 
         jdbcTemplate.update(query, param);
     }

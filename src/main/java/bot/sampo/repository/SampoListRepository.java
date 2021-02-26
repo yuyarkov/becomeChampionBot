@@ -7,7 +7,7 @@ public interface SampoListRepository {
 
     boolean inPair(long dancer);
 
-    void writePair(long dancerId1, long dancerId2);
+    void writePair(Pair pair);
 
     Dancer getFirstWaiting();
 

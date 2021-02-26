@@ -29,7 +29,7 @@ public class SampoListRepositoryImpl implements SampoListRepository {
     private final SimpleJdbcInsert pairDanceSimpleInsert;
     private final DancerRepository dancerRepository;
 
-    private static final String QUERY_SELECT_PAIR = "select * from " + Tables.PAIR_LIST_TABLE_NAME + " where sampo_date=:sampoDate and (dancer1=:dancerId or dancer2=:dancerId )";
+    private static final String QUERY_SELECT_PAIR = "select * from " + Tables.PAIR_LIST_TABLE_NAME + " where sampo_date=:sampoDate and (leader=:dancerId or follower=:dancerId )";
     private static final String QUERY_SELECT_WAIT = "select * from " + Tables.WAIT_LIST_TABLE_NAME + " where sampo_date=:sampoDate and dancer=:dancerId";
 
 
@@ -41,12 +41,16 @@ public class SampoListRepositoryImpl implements SampoListRepository {
     }
 
     @Override
-    public void writePair(long dancerId1, long dancerId2) {
+    public void writePair(Pair pair) {
+
+        if (pair.getLeader().isLeader() == pair.getFollower().isLeader())
+            throw new RuntimeException("members of pair must have different roles");
+
         var sampoDate = configRepository.getCurrentSampoDate();
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("sampo_date", sampoDate);
-        parameters.put("dancer1", dancerId1);
-        parameters.put("dancer2", dancerId2);
+        parameters.put("leader", pair.getLeader().getChatID());
+        parameters.put("follower", pair.getFollower().getChatID());
         pairDanceSimpleInsert.execute(parameters);
     }
 
@@ -74,7 +78,7 @@ public class SampoListRepositoryImpl implements SampoListRepository {
     @Override
     public Pair getPair(long dancerId) {
         var sampoDate = configRepository.getCurrentSampoDate();
-        Map<String, Object> param = Map.of("sampoDate", sampoDate);
+        Map<String, Object> param = Map.of("sampoDate", sampoDate, "dancerId", dancerId);
         PairDb pairDb = getOneOrNull(jdbcTemplate.query(QUERY_SELECT_PAIR, param, new PairRowMapper()));
 
         if (pairDb == null)
@@ -109,8 +113,8 @@ public class SampoListRepositoryImpl implements SampoListRepository {
         var query =
                 "select d1.last_name leader, d2.last_name follower " +
                         "from " + Tables.PAIR_LIST_TABLE_NAME + " as w " +
-                        "left join " + Tables.DANCER_TABLE_NAME + " as d1 on w.dancer1=d1.id " +
-                        "left join " + Tables.DANCER_TABLE_NAME + " as d2 on w.dancer2=d2.id " +
+                        "left join " + Tables.DANCER_TABLE_NAME + " as d1 on w.leader=d1.id " +
+                        "left join " + Tables.DANCER_TABLE_NAME + " as d2 on w.follower=d2.id " +
                         "where w.sampo_date=:sampoDate";
         Map<String, Object> param = Map.of("sampoDate", sampoDate);
         var waitedDancers = jdbcTemplate.query(query, param, new PairShortRowMapper());

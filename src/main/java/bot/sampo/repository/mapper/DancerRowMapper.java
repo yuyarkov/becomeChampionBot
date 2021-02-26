@@ -10,10 +10,9 @@ public class DancerRowMapper implements RowMapper<Dancer> {
     @Override
     public Dancer mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Dancer.builder()
-                .telegramName(rs.getString("telegram_name"))
                 .lastName(rs.getString("last_name"))
                 .firstName(rs.getString("first_name"))
-                .sex(Dancer.mapSexFromDb(rs.getObject("man", Boolean.class)))
+                .leader(rs.getBoolean("leader"))
                 .chatID(rs.getLong("id"))
                 .admin(rs.getBoolean("admin"))
                 .build();

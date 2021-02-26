@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -13,7 +15,7 @@ public class BotRequestHelper {
 
     private final UserActionReactRouter reactRouter;
 
-    public BotResponse sendMsg(String msg, TelegramUser telegramUser) {
+    public BotPluralResponse sendMsg(String msg, TelegramUser telegramUser) {
         printAction(null, msg, telegramUser);
         var user = ClassCreationUtil.createUser(telegramUser.getFirstName(), telegramUser.getLastName());
         var update = ClassCreationUtil.createUpdate(ClassCreationUtil.createMessage(telegramUser.getId(), msg, user), null);
@@ -21,7 +23,7 @@ public class BotRequestHelper {
         return mergeReactions(reactions);
     }
 
-    public BotResponse pushButton(BotResponse botResponse, String buttonId, TelegramUser telegramUser) {
+    public BotPluralResponse pushButton(BotResponse botResponse, String buttonId, TelegramUser telegramUser) {
         printAction(buttonId, null, telegramUser);
         if (!botResponse.getButtons().contains(buttonId))
             throw new RuntimeException("missing test button exception. Expect " + buttonId + " but was " + botResponse.getButtons());
@@ -36,25 +38,29 @@ public class BotRequestHelper {
 
     }
 
-    private BotResponse mergeReactions(List<SendMessage> reactions) {
-        printReactions(reactions);
-        var resp = new BotResponse();
+    private BotPluralResponse mergeReactions(List<SendMessage> reactions) {
+        var responseMap = new HashMap<Long, BotResponse>();
+
         reactions.forEach(v -> {
+            responseMap.computeIfAbsent(Long.parseLong(v.getChatId()), BotResponse::new);
+            var resp = responseMap.get(Long.parseLong(v.getChatId()));
             resp.setButtons(ClassCreationUtil.extractCallback(v.getReplyMarkup()));
-            resp.setMessage(resp.getMessage() + "\n" + v.getText());
+            resp.setMessage((resp.getMessage() == null ? "" : resp.getMessage() + "\n") + v.getText());
         });
-        return resp;
+
+        printReactions(responseMap);
+
+        return BotPluralResponse.builder().responseMap(responseMap).build();
     }
 
-    private void printReactions(List<SendMessage> reactions) {
-        reactions.forEach(r -> {
-
+    private void printReactions(Map<Long, BotResponse> reactions) {
+        reactions.forEach((key, value) -> {
             System.out.println("\n ---------RESPONSE--------");
+            System.out.println("\n Client: " + key);
             System.out.println("\n TEXT: ");
-            System.out.println("\n" + r.getText());
+            System.out.println("\n" + value.getMessage());
             System.out.println("\n Buttons: ");
-            System.out.println("\n" + ClassCreationUtil.extractCallback(r.getReplyMarkup()));
-
+            System.out.println("\n" + value.getButtons());
         });
     }
 

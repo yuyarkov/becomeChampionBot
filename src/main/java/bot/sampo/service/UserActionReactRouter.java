@@ -28,7 +28,7 @@ public class UserActionReactRouter {
     private final Map<Long, Boolean> waitingForPartnerName = new HashMap<>(); //статус, где записывается парой и указывае фамилию партнера/партнерши*/
     private final Map<Long, Boolean> waitingForLastName = new HashMap<>(); //статус, где юзеру нужно ввести свою фамилию
     //ключ - chatID, 0 - имя тг, 1 - фамилия тг, 2 - пол, 3 - ник в телеграме, 4 - жду фамилию самого юзера, 5 - жду фамилию партнера/партнерши
-    private final Map<Long, String> dialogDancerSex = new HashMap<>(); //юзер при начале общения с ботом указывает свой пол
+    private final Map<Long, Boolean> dialogDancerSex = new HashMap<>(); //юзер при начале общения с ботом указывает свой пол. true - лидер
     private final DancerRepository dancerRepository;
     private final SampoListRepository sampoListRepository;
     private final ConfigRepository configRepository;
@@ -54,10 +54,10 @@ public class UserActionReactRouter {
         long chatID = callbackQuery.getMessage().getChatId();
         switch (callbackQuery.getData()) {
             case "Leader":
-                dialogDancerSex.put(chatID, Dancer.LEADER);
+                dialogDancerSex.put(chatID, true);
                 return askWhatLastName(callbackQuery);
             case "Follower":
-                dialogDancerSex.put(chatID, Dancer.FOLLOWER);
+                dialogDancerSex.put(chatID, false);
                 return askWhatLastName(callbackQuery);
             case "lastnameok":
                 dancerRepository.save(parseCallBackToDancer(callbackQuery));
@@ -130,8 +130,7 @@ public class UserActionReactRouter {
                 .firstName(firstName)
                 .lastName(lastName)
                 .chatID(chatID)
-                .telegramName(telegramName)
-                .sex(dialogDancerSex.get(chatID))
+                .leader(dialogDancerSex.get(chatID))
                 .build();
     }
 
@@ -161,16 +160,11 @@ public class UserActionReactRouter {
 
         var res = new ArrayList<SendMessage>();
 
-        if (dancer1.getSex().equals(Dancer.LEADER)) {
-            sampoListRepository.writePair(dancer1.getChatID(), dancer2.getChatID());
-            res.add(replyToTelegramMsg(dancer2.getChatID(), "Ты записана на следующее сампо в паре с партнёром: "
-                    + dancer1.getFirstName() + " " + dancer1.getLastName(), null));
-        } else {
-            sampoListRepository.writePair(dancer2.getChatID(), dancer1.getChatID());
-            res.add(replyToTelegramMsg(dancer2.getChatID(), "Ты записан на следующее сампо в паре с партнёршей: "
-                    + dancer1.getFirstName() + " " + dancer1.getLastName(), null));
-        }
-
+        sampoListRepository.writePair(getPair(dancer1, dancer2));
+        res.add(replyToTelegramMsg(dancer2.getChatID(), "Ты записан(а) на следующее сампо в паре с : "
+                + dancer1.getFirstName() + " " + dancer1.getLastName(), null));
+        res.add(replyToTelegramMsg(dancer1.getChatID(), "Ты записан(а) на следующее сампо в паре с : "
+                + dancer2.getFirstName() + " " + dancer2.getLastName(), null));
         res.add(sendMessageAfterSignUp(chatID));
 
         return res;
@@ -204,8 +198,8 @@ public class UserActionReactRouter {
         var res = new ArrayList<SendMessage>();
 
         var freeDancer = sampoListRepository.getFirstWaiting();
-        if (freeDancer != null && !freeDancer.getSex().equals(dancerToAdd.getSex())) {//если очередь не пуста и первый противоположенного пола
-            sampoListRepository.writePair(freeDancer.getChatID(), dancerToAdd.getChatID());
+        if (freeDancer != null && !freeDancer.isLeader() == dancerToAdd.isLeader()) {//если очередь не пуста и первый противоположенного пола
+            sampoListRepository.writePair(getPair(freeDancer, dancerToAdd));
             sampoListRepository.removeFromWaiting(freeDancer.getChatID());//удалить из листа ожидания
             res.add(replyToTelegramMsg(freeDancer.getChatID(), "Записал к тебе в пару танцора: " +
                     dancerToAdd.getFirstName() + " " + dancerToAdd.getLastName(), null));
@@ -321,8 +315,7 @@ public class UserActionReactRouter {
                 .firstName(firstName)
                 .lastName(lastName)
                 .chatID(chatID)
-                .telegramName(telegramName)
-                .sex(dialogDancerSex.get(chatID))
+                .leader(dialogDancerSex.get(chatID))
                 .build();
     }
 
@@ -343,5 +336,22 @@ public class UserActionReactRouter {
                 + sampoListRepository.getPairListAsText()
                 + "\n*Лист ожидания:*\n"
                 + sampoListRepository.getWaitingListAsText(), button));
+    }
+
+    private Pair getPair(Dancer dancer1, Dancer dancer2) {
+        return Pair
+                .builder()
+                .follower(dancer1.isLeader() ? dancer2 : dancer1)
+                .leader(dancer1.isLeader() ? dancer1 : dancer2)
+                .build();
+    }
+
+    private Dancer getFollower(Dancer dancer1, Dancer dancer2) {
+        if (dancer1.isLeader() && !dancer2.isLeader())
+            return dancer1;
+        else if (dancer2.isLeader() && !dancer1.isLeader())
+            return dancer2;
+        else
+            throw new RuntimeException("unexpected combination " + dancer1 + " - " + dancer2);
     }
 }
