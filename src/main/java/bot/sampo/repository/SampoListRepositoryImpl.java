@@ -70,7 +70,7 @@ public class SampoListRepositoryImpl implements SampoListRepository {
     @Override
     public void removeFromWaiting(long dancerId) {
         var sampoDate = configRepository.getCurrentSampoDate();
-        var query = "delete from " + Tables.WAIT_LIST_TABLE_NAME + " where sampo_date=:sampoDate and dancer=:dancer limit 1";
+        var query = "delete from " + Tables.WAIT_LIST_TABLE_NAME + " where sampo_date=:sampoDate and dancer=:dancer";
         Map<String, Object> param = Map.of("dancer", dancerId, "sampoDate", sampoDate);
         jdbcTemplate.update(query, param);
     }
@@ -98,13 +98,11 @@ public class SampoListRepositoryImpl implements SampoListRepository {
     }
 
     @Override
-    public void removeFromPairListAndAddToWait(long dancerId) {
+    public void removeFromPairList(long dancerId) {
         var sampoDate = configRepository.getCurrentSampoDate();
-        var query = "delete from " + Tables.DANCER_TABLE_NAME + " where sampo_date=:sampoDate and (dancer1=:dancer or dancer2=:dancer) limit 1";
+        var query = "delete from " + Tables.PAIR_LIST_TABLE_NAME + " where sampo_date=:sampoDate and (leader=:dancer or follower=:dancer)";
         Map<String, Object> param = Map.of("dancer", dancerId, "sampoDate", sampoDate);
         jdbcTemplate.update(query, param);
-
-        addWaiting(dancerId);
     }
 
     @Override

@@ -19,7 +19,7 @@ public interface SampoListRepository {
 
     boolean isWaiting(long chatID);
 
-    void removeFromPairListAndAddToWait(long chatID);
+    void removeFromPairList(long chatID);
 
     String getWaitingListAsText();
 

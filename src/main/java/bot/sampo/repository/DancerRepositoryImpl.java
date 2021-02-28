@@ -34,16 +34,17 @@ public class DancerRepositoryImpl implements DancerRepository {
 
     @Override
     public void save(Dancer d) {
-        var query = "insert into " + Tables.DANCER_TABLE_NAME + "(id, first_name, last_name, leader) " +
-                "values (:id, :firstName, :lastName, :leader) " +
+        var query = "insert into " + Tables.DANCER_TABLE_NAME + "(id, first_name, last_name, leader, admin) " +
+                "values (:id, :firstName, :lastName, :leader, :admin) " +
                 "ON CONFLICT (id) DO UPDATE set " +
-                "first_name=:firstName, last_name=:lastName, leader=:leader";
+                "first_name=:firstName, last_name=:lastName, leader=:leader, admin=:admin";
 
         var param = Map.of(
                 "id", d.getChatID(),
                 "firstName", d.getFirstName(),
                 "lastName", d.getLastName(),
-                "leader", d.isLeader());
+                "leader", d.isLeader(),
+                "admin", d.isAdmin());
 
         jdbcTemplate.update(query, param);
     }

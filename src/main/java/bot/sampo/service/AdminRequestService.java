@@ -45,7 +45,7 @@ public class AdminRequestService {
         var text = request.getMessage().getText();
 
         if (text.startsWith("#sc")) {
-            var date = LocalDate.ofEpochDay(Long.parseLong(text.replace("#sc", "")));
+            var date = LocalDate.parse(text.replace("#sc", ""));
             configRepository.setCurrentSampoDate(date);
             return List.of(replyToTelegramMsg(userId, "set current sampo date successful to " + date));
         }
@@ -54,9 +54,7 @@ public class AdminRequestService {
                                         
                     Command help:
                                         
-                    - change current sampo date
-                        #sc<Days Since 1970-01-01> for example 'sc42790' that will set date to February 25, 2021. 
-                        Use https://www.epochconverter.com/seconds-days-since-y0
+                    - #sc<date> - change current sampo date for example '#sc2021-02-28'
                                         
                     """));
         }
