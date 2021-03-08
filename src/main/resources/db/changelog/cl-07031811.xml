@@ -4,7 +4,10 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-
-    <include file="db/changelog/cl-2502212222.xml"/>
-    <include file="db/changelog/cl-07031811.xml"/>
+    <changeSet author="Alexandr Shumeyko" id="cl-07031811">
+        <insert tableName="bot_config">
+            <column name="id" value="nextSampo" />
+            <column name="value" value="2000-01-01" />
+        </insert>
+    </changeSet>
 </databaseChangeLog>

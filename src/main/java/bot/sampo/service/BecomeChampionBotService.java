@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.LinkedList;
@@ -47,7 +48,7 @@ public class BecomeChampionBotService extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        replyToTelegram(adminId, update.toString());
+        replyToTelegram(adminId, update);
         updateQueue.add(update);//чтобы не решать проблемы конкурентного доступа, сделаем невозможным одновременную обработку запросов.
     }
 
@@ -61,15 +62,28 @@ public class BecomeChampionBotService extends TelegramLongPollingBot {
         return botToken;
     }
 
-    private void replyToTelegram(long chatID, String text) {
+    private void replyToTelegram(long chatID, Update update) {
         SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
         message.setChatId(String.valueOf(chatID));
         message.enableMarkdown(true);
-        message.setText(text);
+        message.setText(updateToString(update));
         try {
             execute(message); // Call method to send the message
         } catch (TelegramApiException e) {
             log.error("send message to admin", e);
         }
+    }
+
+    private String updateToString(Update update) {
+
+        var callBack = update.getCallbackQuery() == null ? "" : update.getCallbackQuery().getData();
+        var user = update.getMessage()==null?update.getCallbackQuery().getFrom():update.getMessage().getFrom();
+        var msg = update.getMessage()==null?"":update.getMessage().getText();
+
+        return "new request\n" + userToString(user) + "\n" + String.format("msg: %s,\ncb: %s", msg, callBack);
+    }
+
+    private String userToString(User user) {
+        return String.format("first name: %s,\nlastName: %s,\nid: %s", user.getFirstName(), user.getLastName(), user.getId());
     }
 }

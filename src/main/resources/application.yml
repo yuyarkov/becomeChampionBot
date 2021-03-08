@@ -3,11 +3,11 @@ bot:
   token: ${TOKEN_BECOME_CHAMPION_BOT}
 
 app:
-  admin-id: 238349375
+  admin-id: ${ADMIN_CHAT_ID}
 
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
-
-logging:
-  config: classpath:log4j.properties
+  datasource:
+    platform: postgres
+    driver-class-name: org.postgresql.Driver

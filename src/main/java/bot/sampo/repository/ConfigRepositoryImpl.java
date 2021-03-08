@@ -21,12 +21,12 @@ public class ConfigRepositoryImpl implements ConfigRepository {
     public LocalDate getCurrentSampoDate() {
         var query = "select value from " + Tables.CONFIG_TABLE_NAME + " where  id = 'nextSampo'";
 
-        var epochDays = getOneOrNull(jdbcTemplate.query(query, Map.of(), new StringRowMapper("value")));
+        var dateStr = getOneOrNull(jdbcTemplate.query(query, Map.of(), new StringRowMapper("value")));
 
-        if (epochDays == null)
+        if (dateStr == null)
             throw new RuntimeException("sampo date not configured");
 
-        return LocalDate.ofEpochDay(Long.parseLong(epochDays));
+        return LocalDate.parse(dateStr);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 "value=:value";
         var param = Map.of(
                 "id", "nextSampo",
-                "value", localDate.toEpochDay());
+                "value", localDate.toString());
         jdbcTemplate.update(query, param);
     }
 }
