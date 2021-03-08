@@ -4,8 +4,10 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="Alexandr Shumeyko" id="cl-07031811">
+        <sql >
 
-    <include file="db/changelog/cl-2502212222.xml"/>
-    <include file="db/changelog/cl-07031811.xml"/>
-    <include file="db/changelog/cl-08032324.xml"/>
+            update dancer set admin=true WHERE id in('238349375','290446976')
+        </sql>
+    </changeSet>
 </databaseChangeLog>
